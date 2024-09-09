@@ -1,5 +1,5 @@
 import "./style.css";
-import { render, html, signal, effect } from "uhtml/signal";
+import { render, html, signal, effect, computed } from "uhtml/signal";
 
 const count = signal(0);
 

@@ -9,11 +9,6 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
-    },
-    "./components": {
-      "types": "./dist/components/index.d.ts",
-      "import": "./dist/components/index.mjs",
-      "require": "./dist/components/index.js"
     }
   },
   "main": "./dist/index.js",
@@ -40,7 +35,7 @@
   },
   "scripts": {
     "build": "unbuild",
-    "dev": "cd ./sandbox/vite-vue && npm run dev",
+    "dev": "cd ./sandbox/vite-uhtml && npm run dev",
     "publish-package": "npm publish --access public",
     "prepublishOnly": "npm run build"
   },
