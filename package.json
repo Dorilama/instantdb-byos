@@ -1,0 +1,56 @@
+{
+  "name": "@dorilama/instantdb-byo-signal",
+  "version": "0.1.0",
+  "description": "Unofficial Instant DB for bring your own signal reactivity",
+  "author": "dorilama",
+  "license": "ISC",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.mjs",
+      "require": "./dist/components/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "*",
+        "dist/*",
+        "dist/*.d.ts",
+        "dist/*/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "components.d.ts",
+    "dist"
+  ],
+  "homepage": "https://github.com/Dorilama/instantdb-byo-signal#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dorilama/instantdb-byo-signal.git"
+  },
+  "scripts": {
+    "build": "unbuild",
+    "dev": "cd ./sandbox/vite-vue && npm run dev",
+    "publish-package": "npm publish --access public",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@instantdb/core": "^0.12.26"
+  },
+  "devDependencies": {
+    "mkdist": "^1.5.5",
+    "typescript": "^5.5.4",
+    "unbuild": "^2.0.0"
+  },
+  "type": "module"
+}
