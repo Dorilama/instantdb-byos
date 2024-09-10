@@ -40,7 +40,8 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@instantdb/core": "^0.12.26"
+    "@instantdb/core": "^0.12.26",
+    "@webreflection/signal": "^2.1.2"
   },
   "devDependencies": {
     "mkdist": "^1.5.5",

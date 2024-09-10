@@ -417,7 +417,7 @@ export class InstantByos<
   public auth: Auth;
   public storage: Storage;
   public _core: InstantClient<Schema, RoomSchema, WithCardinalityInference>;
-  _fn: SignalFunctions;
+  public readonly _fn: SignalFunctions;
 
   static Storage?: any;
   static NetworkListener?: any;

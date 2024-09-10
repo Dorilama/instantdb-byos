@@ -1,83 +1,59 @@
 import "./style.css";
-import {
-  render,
-  html,
-  signal,
-  effect,
-  computed,
-  Signal,
-  Computed,
-} from "uhtml/signal";
-import { init } from "@dorilama/instantdb-byos";
-import type { ToValueFn } from "@dorilama/instantdb-byos";
-import { Signal as PSignal, signal as psignal } from "@preact/signals";
+import { html, detach } from "uhtml/reactive";
+import { useRoute, RouteView } from "./router";
+import { effect } from "@webreflection/signal";
+import BottomNav from "@/components/BottomNav";
 
-console.log(psignal() instanceof PSignal);
+const route = useRoute();
 
-const count = signal(0);
+const root = document.getElementById("app")!;
 
-const APP_ID = import.meta.env["VITE_INSTANT_APP_ID"];
+const sample = () => {
+  const route = useRoute();
+  const { _fn } = route.value;
+  const count = _fn.signal(0);
+  console.log("sample@1");
 
-// Optional: Declare your schema for intellisense!
-export interface Todo {
-  id: string;
-  text: string;
-  done: boolean;
-  createdAt: number;
-}
+  const View = RouteView();
 
-export type Schema = {
-  todos: Todo;
-};
-
-export type RoomSchema = {
-  chat: {
-    presence: {
-      userId: string;
-      color: string;
-      path: string;
-    };
-    topics: {
-      emoji: { text: string; color?: string };
-    };
-  };
-};
-
-const toValue: typeof ToValueFn = (value) => {
-  if (value instanceof Signal) {
-    return value.value;
-  }
-  return value;
-};
-
-export const db = init<Schema, RoomSchema>(
-  { appId: APP_ID },
-  { signal, computed, effect, toValue, onScopeDispose: () => {} }
-);
-export const chatRoomoom = db.room("chat", "dev");
-
-const query = db.useQuery({ todos: {} });
-
-const presence = chatRoomoom.usePresence();
-
-effect(() => {
-  console.log(query.data.value);
-});
-effect(() => {
-  console.log(presence.peers.value);
-});
-
-const root = document.querySelector<HTMLDivElement>("#app")!;
-render(
-  root,
-  () => html`
-    <h1>Hello</h1>
+  // return () => {
+  //   console.log("sample@2");
+  return html`<p>${route.value.lib}</p>
     <button
       @click=${() => {
         count.value += 1;
+        console.log(count.value);
       }}
     >
       ${count.value}
     </button>
-  `
-);
+    <ul>
+      ${["w", "u", "p"].map(
+        (s) => html`<li><a href=${"#" + s}>go to ${s}</a></li>`
+      )}
+    </ul>
+    <br />${View()}`;
+  // };
+};
+
+const App = () => {
+  const r = useRoute();
+  const View = r.value.component();
+  const BN = BottomNav();
+  return () => html`<p>hello</p>
+    ${View()}${BN()}`;
+};
+
+effect(() => {
+  const el = route.value.render(root, App());
+  const lib = route.value.lib;
+  const cleanup = route.value.cleanup;
+  return () => {
+    if (lib === route.value.lib) {
+      return;
+    }
+    console.log("detach", lib, route.value.lib);
+    cleanup();
+    detach(el);
+  };
+});
