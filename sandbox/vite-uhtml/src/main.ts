@@ -1,83 +1,26 @@
 import "./style.css";
-import {
-  render,
-  html,
-  signal,
-  effect,
-  computed,
-  Signal,
-  Computed,
-} from "uhtml/signal";
-import { init } from "@dorilama/instantdb-byos";
-import type { ToValueFn } from "@dorilama/instantdb-byos";
-import { Signal as PSignal, signal as psignal } from "@preact/signals";
+import { html, render, effect } from "uhtml/signal";
+import { RouteView } from "./router";
+import BottomNav from "@/components/BottomNav";
+import { chatRoomoom } from "./db";
+import { useUserPresenceValue } from "./db/composables";
 
-console.log(psignal() instanceof PSignal);
+const root = document.getElementById("app")!;
 
-const count = signal(0);
+render(root, () => html`${RouteView()}${BottomNav()}`);
 
-const APP_ID = import.meta.env["VITE_INSTANT_APP_ID"];
+const userPresenceValue = useUserPresenceValue();
 
-// Optional: Declare your schema for intellisense!
-export interface Todo {
-  id: string;
-  text: string;
-  done: boolean;
-  createdAt: number;
-}
+const {
+  peers,
+  publishPresence,
+  isLoading: isLoadingPresence,
+} = chatRoomoom.usePresence();
 
-export type Schema = {
-  todos: Todo;
-};
-
-export type RoomSchema = {
-  chat: {
-    presence: {
-      userId: string;
-      color: string;
-      path: string;
-    };
-    topics: {
-      emoji: { text: string; color?: string };
-    };
-  };
-};
-
-const toValue: typeof ToValueFn = (value) => {
-  if (value instanceof Signal) {
-    return value.value;
+effect(() => {
+  const presence = userPresenceValue.value;
+  if (isLoadingPresence.value) {
+    return;
   }
-  return value;
-};
-
-export const db = init<Schema, RoomSchema>(
-  { appId: APP_ID },
-  { signal, computed, effect, toValue, onScopeDispose: () => {} }
-);
-export const chatRoomoom = db.room("chat", "dev");
-
-const query = db.useQuery({ todos: {} });
-
-const presence = chatRoomoom.usePresence();
-
-effect(() => {
-  console.log(query.data.value);
+  publishPresence(presence);
 });
-effect(() => {
-  console.log(presence.peers.value);
-});
-
-const root = document.querySelector<HTMLDivElement>("#app")!;
-render(
-  root,
-  () => html`
-    <h1>Hello</h1>
-    <button
-      @click=${() => {
-        count.value += 1;
-      }}
-    >
-      ${count.value}
-    </button>
-  `
-);
