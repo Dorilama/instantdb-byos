@@ -16,7 +16,7 @@ import type {
   Computed,
   ComputedFn,
   MaybeSignal,
-  ToValue,
+  ToValueFn,
   EffectFn,
   OnScopeDisposeFn,
 } from "./types";
@@ -38,8 +38,11 @@ export type UseQueryReturn<
 export function useQuery<
   Q extends Schema extends i.InstantGraph<any, any>
     ? InstaQLQueryParams<Schema>
-    : //@ts-ignore TODO! same error in InstantReact with strict flag enabled
-      Exactly<Query, Q>,
+    : Exactly<
+        Query,
+        //@ts-ignore TODO! same error in InstantReact with strict flag enabled
+        Q
+      >,
   Schema extends {} | i.InstantGraph<any, any, {}>,
   WithCardinalityInference extends boolean
 >(
@@ -54,7 +57,7 @@ export function useQuery<
   }: {
     signal: typeof SignalFn;
     computed: typeof ComputedFn;
-    toValue: typeof ToValue;
+    toValue: typeof ToValueFn;
     effect: EffectFn;
     onScopeDispose: OnScopeDisposeFn;
   }
@@ -79,12 +82,11 @@ export function useQuery<
   };
 
   const stop = effect(() => {
-    const queryValue = query.peek();
     queryHash.value;
-    if (!queryValue) {
+    if (!query.peek()) {
       return;
     }
-    const unsubscribe = _core.subscribeQuery<Q>(queryValue, (result) => {
+    const unsubscribe = _core.subscribeQuery<Q>(query.peek(), (result) => {
       state.isLoading.value = !Boolean(result);
       state.data.value = result.data;
       state.pageInfo.value = result.pageInfo;

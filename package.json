@@ -1,5 +1,5 @@
 {
-  "name": "@dorilama/instantdb-byo-signal",
+  "name": "@dorilama/instantdb-byos",
   "version": "0.1.0",
   "description": "Unofficial Instant DB for bring your own signal reactivity",
   "author": "dorilama",
@@ -28,10 +28,10 @@
     "components.d.ts",
     "dist"
   ],
-  "homepage": "https://github.com/Dorilama/instantdb-byo-signal#readme",
+  "homepage": "https://github.com/Dorilama/instantdb-byos#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Dorilama/instantdb-byo-signal.git"
+    "url": "git+https://github.com/Dorilama/instantdb-byos.git"
   },
   "scripts": {
     "build": "unbuild",
