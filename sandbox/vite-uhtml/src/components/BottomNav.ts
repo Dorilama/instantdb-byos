@@ -1,11 +1,10 @@
-import { html, effect } from "uhtml/signal";
-import { useRoute, RouterLink } from "@/router";
+import { html } from "uhtml/signal";
+import { RouterLink } from "@/router";
 import { db } from "@/db";
 import { usePeerStats } from "@/db/composables";
 
 const { isLoading, user, error } = db.useAuth();
 const { user: myPresence, home, routes, count } = usePeerStats();
-const route = useRoute();
 
 const View = () => {
   const control = {} as { current?: HTMLDialogElement };
@@ -45,7 +44,7 @@ const View = () => {
               <span
                 class="badge w-full sm:w-fit"
                 style=${{ borderColor: myPresence?.value?.color }}
-                ><span class="overflow-hidden">{{ user.email }}</span></span
+                ><span class="overflow-hidden">${user.value.email}</span></span
               >
               <span>Sign out</span></span
             >
@@ -70,7 +69,9 @@ const View = () => {
                     control.current?.close();
                   },
                 },
-                children: html`${r.meta.label}${count.value.byPath[r.path]
+                children: html`${r.meta.label ?? r.path}${count.value.byPath[
+                  r.path
+                ]
                   ? html`<span class="badge badge-accent"
                       >${count.value.byPath[r.path]}</span
                     >`
