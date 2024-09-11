@@ -2,6 +2,7 @@ import { html } from "uhtml/signal";
 import { RouterLink } from "@/router";
 import { db } from "@/db";
 import { usePeerStats } from "@/db/composables";
+import ThemeController from "./ThemeController";
 
 const { isLoading, user, error } = db.useAuth();
 const { user: myPresence, home, routes, count } = usePeerStats();
@@ -45,7 +46,7 @@ const View = () => {
         </ul>
       </div>
       <div class="navbar-end gap-4">
-        ${/*TODO! themecontroller*/ ""}
+        ${ThemeController()}
         ${isLoading.value
           ? html`<button class="btn skeleton" disabled>
               <span class="opacity-0" aria-hidden="true">Sign in</span>
@@ -53,7 +54,7 @@ const View = () => {
           : user.value
           ? html` <span
                 class="badge"
-                style=${{ borderColor: myPresence?.value?.color }}
+                style=${`border-color: ${myPresence?.value?.color};`}
                 >${user.value.email}</span
               >
               <button class="btn" @click=${() => db.auth.signOut()}>

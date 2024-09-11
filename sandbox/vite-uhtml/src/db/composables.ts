@@ -1,5 +1,5 @@
 import { computed } from "uhtml/signal";
-import { useRoute, useRouter } from "@/router";
+import { useRoute, routes as _routes } from "@/router";
 import { db, chatRoomoom } from "@/db";
 import type { RoomSchema } from "@/db";
 
@@ -25,8 +25,7 @@ export function useUserPresenceValue() {
 }
 
 export function usePeerStats() {
-  const router = useRouter();
-  const routes = router.filter(
+  const routes = _routes.filter(
     (r) =>
       //@ts-ignore
       r.meta.isNav === true

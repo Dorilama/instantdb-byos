@@ -2,6 +2,7 @@ import { html } from "uhtml/signal";
 import { RouterLink } from "@/router";
 import { db } from "@/db";
 import { usePeerStats } from "@/db/composables";
+import ThemeController from "./ThemeController";
 
 const { isLoading, user, error } = db.useAuth();
 const { user: myPresence, home, routes, count } = usePeerStats();
@@ -43,7 +44,7 @@ const View = () => {
             <span class="btm-nav-label flex flex-col items-center w-full">
               <span
                 class="badge w-full sm:w-fit"
-                style=${{ borderColor: myPresence?.value?.color }}
+                style=${`border-color: ${myPresence?.value?.color};`}
                 ><span class="overflow-hidden">${user.value.email}</span></span
               >
               <span>Sign out</span></span
@@ -80,7 +81,7 @@ const View = () => {
             </li>`;
           })}
         </ul>
-        ${/*TODO! themecontroller*/ ""}
+        ${ThemeController()}
 
         <div class="modal-action sm:hidden">
           <form method="dialog">

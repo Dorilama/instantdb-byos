@@ -14,7 +14,7 @@ const notFound = {
   meta: { label: "Not Found" },
 };
 
-const routes = [
+export const routes = [
   {
     path: "/",
     name: "home",
@@ -45,6 +45,12 @@ const routes = [
     component: modules["/src/views/Topics.ts"].default,
     meta: { label: "Topics", isNav: true },
   },
+  {
+    path: "/topics/iframe",
+    name: "topicsIframe",
+    component: modules["/src/views/TopicsIframe.ts"].default,
+    meta: { label: "Topics", isNav: false },
+  },
   notFound,
 ] as const;
 
@@ -60,8 +66,9 @@ const currentView = computed(() => {
   return { ...route };
 });
 
-export function useRouter() {
-  return routes;
+export function push(to: string) {
+  const hash = `#${to.startsWith("/") ? to : "/" + to}`;
+  window.location.hash = hash;
 }
 
 export function useRoute() {

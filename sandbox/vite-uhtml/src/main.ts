@@ -1,6 +1,6 @@
 import "./style.css";
 import { html, render, effect } from "uhtml/signal";
-import { RouteView } from "./router";
+import { RouteView, useRoute } from "./router";
 import { chatRoomoom } from "./db";
 import { useUserPresenceValue } from "./db/composables";
 import Header from "@/components/Header";
@@ -24,9 +24,8 @@ effect(() => {
   publishPresence(presence);
 });
 
-render(
-  root,
-  () => html`${Header()}
+function Main() {
+  return html`${Header()}
     <main class="pb-24 lg:pb-0">
       ${RouteView()}
       <div class="w-full flex justify-center">
@@ -53,5 +52,12 @@ render(
         </div>
       </div>
     </main>
-    ${BottomNav()}`
-);
+    ${BottomNav()}`;
+}
+
+render(root, () => {
+  const route = useRoute();
+  const isIframe = route.value.path.endsWith("/iframe");
+
+  return isIframe ? RouteView() : Main();
+});
