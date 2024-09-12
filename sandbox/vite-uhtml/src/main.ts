@@ -1,10 +1,11 @@
 import "./style.css";
-import { html, render, effect } from "uhtml/signal";
+import { html, render, effect, computed } from "uhtml/signal";
 import { RouteView, useRoute } from "./router";
 import { chatRoomoom } from "./db";
 import { useUserPresenceValue } from "./db/composables";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
+import Cursors from "./components/Cursors";
 
 const root = document.getElementById("app")!;
 
@@ -55,9 +56,17 @@ function Main() {
     ${BottomNav()}`;
 }
 
+const cursorOptions = computed(() => {
+  return {
+    spaceId: userPresenceValue.value.path,
+    userCursorColor: userPresenceValue.value.color,
+  };
+});
+const CS = Cursors(cursorOptions, Main, { class: "min-h-dvh" });
+
 render(root, () => {
   const route = useRoute();
   const isIframe = route.value.path.endsWith("/iframe");
 
-  return isIframe ? RouteView() : Main();
+  return isIframe ? RouteView() : CS();
 });

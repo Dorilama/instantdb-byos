@@ -1,6 +1,6 @@
 import { InstantByosRoom } from "./InstantByos";
 import type { RoomSchemaShape } from "@instantdb/core";
-import type { OnScopeDisposeFn } from "./types";
+import type { MaybeSignal, OnScopeDisposeFn } from "./types";
 
 interface CursorSchema {
   x: number;
@@ -19,12 +19,12 @@ export function useCursors<
   RoomType extends keyof RoomSchema
 >(
   room: InstantByosRoom<any, RoomSchema, RoomType>,
-  props: {
+  props: MaybeSignal<{
     spaceId?: string;
     propagate?: boolean;
     userCursorColor?: string;
     zIndex?: number;
-  } = {},
+  }> = {},
   fnOverrides: { onScopeDispose?: OnScopeDisposeFn } = {}
 ) {
   const defaultZ = 99999;
@@ -39,19 +39,17 @@ export function useCursors<
 
   const inertStyles = [
     "overflow: hidden",
-    "pointerEvents: none",
-    "userSelect: none",
+    "pointer-events: none",
+    "user-select: none",
   ];
 
   const { _fn } = room;
-
-  const { propagate, userCursorColor } = props;
 
   const onScopeDispose = fnOverrides.onScopeDispose || _fn.onScopeDispose;
 
   const spaceId = _fn.computed(
     () =>
-      (props.spaceId ||
+      (_fn.toValue(props).spaceId ||
         `cursors-space-default--${String(room.type)}-${
           room.id.value
         }`) as keyof RoomSchema[RoomType]["presence"]
@@ -86,7 +84,7 @@ export function useCursors<
   }
 
   function onMouseMove(e: MouseEvent) {
-    if (!propagate) {
+    if (!_fn.toValue(props).propagate) {
       e.stopPropagation();
     }
     if (cursorsPresence.isLoading.value) {
@@ -106,7 +104,7 @@ export function useCursors<
           y,
           xPercent,
           yPercent,
-          color: userCursorColor,
+          color: _fn.toValue(props).userCursorColor,
         },
       } as RoomSchema[RoomType]["presence"]);
     } catch (error) {
@@ -168,7 +166,11 @@ export function useCursors<
         [
           ...absStles,
           ...inertStyles,
-          `z-index: ${props.zIndex !== undefined ? props.zIndex : defaultZ}`,
+          `z-index: ${
+            _fn.toValue(props).zIndex !== undefined
+              ? _fn.toValue(props).zIndex
+              : defaultZ
+          }`,
         ],
         important
       );

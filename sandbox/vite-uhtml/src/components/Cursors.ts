@@ -1,4 +1,4 @@
-import { attr, Hole, html } from "uhtml/signal";
+import { attr, Hole, html, effect, Signal, computed } from "uhtml/signal";
 import { useCursors } from "@dorilama/instantdb-byos";
 import { db, chatRoomoom } from "@/db";
 
@@ -35,16 +35,22 @@ function Cursor(props: { color?: string } = {}) {
   </svg>`;
 }
 
-// TODO! this breaks everything else but you can see the cursors
 export default function Cursors(
-  props: {
+  props: Signal<{
     spaceId?: string;
     userCursorColor?: string;
-    cursor?: (props: { color: string; presence: any }) => Hole;
-  } = {},
-  children?: Hole,
-  attrs: { class?: string } = {}
+  }>,
+  children?: () => Hole,
+  attrs: { class?: string } = {},
+  customCursor?: (props: { color: string; presence: any }) => Hole
 ) {
+  const options = computed(() => {
+    return {
+      spaceId: props.value.spaceId,
+      userCursorColor: props.value.userCursorColor,
+    };
+  });
+
   const {
     spaceId,
     cursorsPresence,
@@ -54,9 +60,11 @@ export default function Cursors(
     onMouseOut,
     clearPresence,
     stop,
-  } = useCursors(chatRoomoom, {
-    spaceId: props.spaceId,
-    userCursorColor: props.userCursorColor,
+    getWrapperStyles,
+  } = useCursors(chatRoomoom, options);
+
+  effect(() => {
+    console.log(spaceId.value);
   });
 
   return () => html`<div
@@ -65,16 +73,8 @@ export default function Cursors(
     @mousemove=${onMouseMove}
     @mouseleave=${onMouseOut}
   >
-    ${children ? children : ""}
-    <div
-      style=${[
-        "position: absolute",
-        "top: 0",
-        "left: 0",
-        "bottom: 0",
-        "right: 0",
-      ].join(";")}
-    >
+    ${children ? children() : html``}
+    <div style=${getWrapperStyles()}>
       ${Object.entries(cursorsPresence.peers.value).map(([id, presence]) => {
         const cursor = getCursor(presence);
         return cursor
@@ -90,11 +90,11 @@ export default function Cursors(
                 "transition: transform 100ms",
               ].join(";")}
             >
-              ${props.cursor
-                ? props.cursor({ color: cursor.color, presence })
+              ${customCursor
+                ? customCursor({ color: cursor.color, presence })
                 : Cursor({ color: cursor.color })}
             </div>`
-          : "";
+          : html``;
       })}
     </div>
   </div>`;
