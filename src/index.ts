@@ -17,6 +17,8 @@ import type {
 import { InstantByos } from "./InstantByos";
 import { init, init_experimental } from "./init";
 
+import { useCursors } from "./cursors";
+
 import type {
   Signal,
   Computed,
@@ -29,7 +31,7 @@ import type {
   SignalFunctions,
 } from "./types";
 
-export { id, tx, lookup, init, init_experimental, InstantByos, i };
+export { id, tx, lookup, init, init_experimental, InstantByos, i, useCursors };
 export type {
   QueryResponse,
   InstantQuery,
