@@ -69,5 +69,6 @@ export default function () {
         </li>`;
       })}
     </ul>
+    <p>Click a button! ✨</p>
   </div>`;
 }

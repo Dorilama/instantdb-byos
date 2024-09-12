@@ -40,6 +40,12 @@ export const routes = [
     meta: { label: "Typing", isNav: true },
   },
   {
+    path: "/typing/iframe",
+    name: "typingIframe",
+    component: modules["/src/views/TypingIframe.ts"].default,
+    meta: { label: "Typing", isNav: false },
+  },
+  {
     path: "/topics",
     name: "topics",
     component: modules["/src/views/Topics.ts"].default,
