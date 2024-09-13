@@ -24,8 +24,7 @@ export function useCursors<
     propagate?: boolean;
     userCursorColor?: string;
     zIndex?: number;
-  }> = {},
-  fnOverrides: { onScopeDispose?: OnScopeDisposeFn } = {}
+  }> = {}
 ) {
   const defaultZ = 99999;
 
@@ -44,8 +43,6 @@ export function useCursors<
   ];
 
   const { _fn } = room;
-
-  const onScopeDispose = fnOverrides.onScopeDispose || _fn.onScopeDispose;
 
   const spaceId = _fn.computed(
     () =>
@@ -144,7 +141,7 @@ export function useCursors<
     clearPresence(spaceId.value);
   }
 
-  onScopeDispose(() => {
+  _fn.onScopeDispose(() => {
     stop();
   });
 

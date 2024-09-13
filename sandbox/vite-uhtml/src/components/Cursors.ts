@@ -59,14 +59,16 @@ export default function Cursors(
     onMouseOut,
     clearPresence,
     stop,
+    getGlobalWrapperStyles,
     getWrapperStyles,
+    getCursorStyles,
   } = useCursors(chatRoomoom, options);
 
   return (
     customCursor?: (props: { color: string; presence: any }) => Hole
   ) => html`<div
     class=${attrs.class}
-    style="position: relative"
+    style=${getGlobalWrapperStyles()}
     @mousemove=${onMouseMove}
     @mouseleave=${onMouseOut}
   >
@@ -76,18 +78,7 @@ export default function Cursors(
         const cursor = getCursor(presence);
 
         return cursor
-          ? html`<div
-              style=${[
-                "position: absolute",
-                "top: 0",
-                "left: 0",
-                "bottom: 0",
-                "right: 0",
-                `transform: ${`translate(${cursor.xPercent}%, ${cursor.yPercent}%)`}`,
-                "transformOrigin: 0 0",
-                "transition: transform 100ms",
-              ].join(";")}
-            >
+          ? html`<div style=${getCursorStyles(presence)}>
               ${customCursor
                 ? customCursor({ color: cursor.color, presence })
                 : Cursor({ color: cursor.color })}
