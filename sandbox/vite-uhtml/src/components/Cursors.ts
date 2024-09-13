@@ -41,8 +41,7 @@ export default function Cursors(
     userCursorColor?: string;
   }>,
   children?: () => Hole,
-  attrs: { class?: string } = {},
-  customCursor?: (props: { color: string; presence: any }) => Hole
+  attrs: { class?: string } = {}
 ) {
   const options = computed(() => {
     return {
@@ -63,11 +62,9 @@ export default function Cursors(
     getWrapperStyles,
   } = useCursors(chatRoomoom, options);
 
-  effect(() => {
-    console.log(spaceId.value);
-  });
-
-  return () => html`<div
+  return (
+    customCursor?: (props: { color: string; presence: any }) => Hole
+  ) => html`<div
     class=${attrs.class}
     style="position: relative"
     @mousemove=${onMouseMove}
@@ -77,6 +74,7 @@ export default function Cursors(
     <div style=${getWrapperStyles()}>
       ${Object.entries(cursorsPresence.peers.value).map(([id, presence]) => {
         const cursor = getCursor(presence);
+
         return cursor
           ? html`<div
               style=${[

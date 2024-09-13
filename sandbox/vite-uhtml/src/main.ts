@@ -67,6 +67,7 @@ const CS = Cursors(cursorOptions, Main, { class: "min-h-dvh" });
 render(root, () => {
   const route = useRoute();
   const isIframe = route.value.path.endsWith("/iframe");
+  const hideCursor = route.value.name === "cursors";
 
-  return isIframe ? RouteView() : CS();
+  return isIframe ? RouteView() : CS(hideCursor ? () => html`` : undefined);
 });

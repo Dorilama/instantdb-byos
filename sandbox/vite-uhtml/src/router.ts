@@ -34,6 +34,12 @@ export const routes = [
     meta: { label: "Cursors", isNav: true },
   },
   {
+    path: "/cursors/iframe",
+    name: "cursorsIframe",
+    component: modules["/src/views/CursorsIframe.ts"].default,
+    meta: { label: "Cursors", isNav: false },
+  },
+  {
     path: "/typing",
     name: "typing",
     component: modules["/src/views/Typing.ts"].default,
@@ -60,10 +66,17 @@ export const routes = [
   notFound,
 ] as const;
 
-const currentPath = signal(window.location.hash.slice(1) || "/");
+export function parseUrl() {
+  const raw = window.location.hash.slice(1) || "/";
+  const [path, q] = raw.split("?");
+  const query = Object.fromEntries(new URLSearchParams(q));
+  return { path, query };
+}
+
+const currentPath = signal(parseUrl().path);
 
 window.addEventListener("hashchange", () => {
-  currentPath.value = window.location.hash.slice(1) || "/";
+  currentPath.value = parseUrl().path;
 });
 
 const currentView = computed(() => {

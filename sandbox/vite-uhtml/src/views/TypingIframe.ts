@@ -63,10 +63,7 @@ export default function () {
               ></span>`
             : ""}
           <div
-            class=${[
-              peers.length > 4 ? "w-8" : "w-12",
-              "text-neutral rounded-full border-4",
-            ]
+            class=${[peers.length > 4 ? "w-8" : "w-12", "rounded-full border-4"]
               .filter(Boolean)
               .join(" ")}
             style=${`border-color: ${peer.color};`}

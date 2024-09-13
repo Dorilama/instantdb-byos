@@ -13,19 +13,29 @@ const defaultTheme = window.matchMedia?.("(prefers-color-scheme: dark)").matches
   ? "dark"
   : "ligh";
 
-let _settings = { theme: defaultTheme };
-try {
-  _settings = JSON.parse(window.localStorage.getItem("settings") || "{}");
-  if (!_settings.theme) {
-    _settings.theme = defaultTheme;
+function getSettings() {
+  let _settings = { theme: defaultTheme };
+  try {
+    _settings = JSON.parse(window.localStorage.getItem("settings") || "{}");
+    if (!_settings.theme) {
+      _settings.theme = defaultTheme;
+    }
+  } catch (error) {
+    console.log(error);
   }
-} catch (error) {
-  console.log(error);
+  return _settings;
 }
 
-export const settings = signal(_settings);
+export const settings = signal(getSettings());
 
 effect(() => {
   window.localStorage.setItem("settings", JSON.stringify(settings.value));
   document.documentElement.dataset.theme = settings.value.theme;
+});
+
+window.addEventListener("storage", (e: Event) => {
+  const event = e as StorageEvent;
+  if (event.key === "settings") {
+    settings.value = getSettings();
+  }
 });

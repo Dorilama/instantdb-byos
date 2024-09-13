@@ -130,18 +130,17 @@ export function useCursors<
     }
   }
 
-  // const stopClearPresence = _fn.effect(() => {
-  //   const oldValue = spaceIdOld.peek();
-  //   console.log(oldValue, spaceId.value);
-  //   if (spaceId.value !== oldValue) {
-  //     clearPresence(oldValue);
-  //   }
-  //   spaceIdOld.value = spaceId.value;
-  // });
+  const stopClearPresence = _fn.effect(() => {
+    const oldValue = spaceIdOld.peek();
+    if (spaceId.value !== oldValue) {
+      clearPresence(oldValue);
+    }
+    spaceIdOld.value = spaceId.value;
+  });
 
   function stop() {
     stopIsLoadingFirst();
-    // stopClearPresence();
+    stopClearPresence();
     clearPresence(spaceId.value);
   }
 
