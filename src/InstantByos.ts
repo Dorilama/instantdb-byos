@@ -554,12 +554,12 @@ export class InstantByos<
    *  }
    */
   useAuth = (): UseAuthReturn => {
-    // (XXX): Don't set `isLoading` true if we already have data, would
-    // be better to immediately show loaded data
+    const initialState = this._core._reactor._currentUserCached;
+
     const state: UseAuthReturn = {
-      isLoading: this._fn.signal(true),
-      user: this._fn.signal(undefined),
-      error: this._fn.signal(undefined),
+      isLoading: this._fn.signal(initialState.isLoading),
+      user: this._fn.signal(initialState.user),
+      error: this._fn.signal(initialState.error),
     };
     const unsubscribe = this._core._reactor.subscribeAuth((resp: any) => {
       state.isLoading.value = false;
