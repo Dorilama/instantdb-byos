@@ -296,14 +296,23 @@ export class InstantByosRoom<
     data: MaybeSignal<Partial<RoomSchema[RoomType]["presence"]>>,
     deps?: MaybeSignal<any[]>
   ): void => {
+    const stopRoomWatch = this._fn.effect(() => {
+      const id = this.id.value;
+      const cleanup = this._core._reactor.joinRoom(id);
+      return cleanup;
+    });
+
     const stop = this._fn.effect(() => {
       const id = this.id.value;
       const _data = this._fn.toValue(data);
+      this._core._reactor.joinRoom(id);
+      // TODO! should this.type be a ref?
       this._core._reactor.publishPresence(this.type, id, _data);
       this._fn.toValue(deps);
     });
 
     this._fn.onScopeDispose(() => {
+      stopRoomWatch();
       stop();
     });
   };

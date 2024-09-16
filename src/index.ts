@@ -7,6 +7,7 @@ import type {
   QueryResponse,
   InstantQuery,
   InstantQueryResult,
+  InstantSchema,
   InstantObject,
   User,
   AuthState,
@@ -33,14 +34,16 @@ import type {
 
 export { id, tx, lookup, init, init_experimental, InstantByos, i, useCursors };
 export type {
+  Config,
+  Query,
   QueryResponse,
-  InstantQuery,
-  InstantQueryResult,
   InstantObject,
   User,
   AuthState,
-  Query,
-  Config,
+  InstantQuery,
+  InstantQueryResult,
+  InstantSchema,
+  //
   Signal,
   Computed,
   SignalFn,
