@@ -33,7 +33,7 @@ export type UseQueryReturn<
   >]: Signal<
     LifecycleSubscriptionState<Q, Schema, WithCardinalityInference>[K]
   >;
-};
+} & { stop: () => void };
 
 function stateForResult(result: any) {
   return {
@@ -74,7 +74,6 @@ export function useQuery<
 ): {
   state: UseQueryReturn<Q, Schema, WithCardinalityInference>;
   query: any;
-  stop: () => void;
 } {
   const query = computed(() => {
     const value = toValue(_query);
@@ -93,6 +92,7 @@ export function useQuery<
     data: signal(initialState.data),
     pageInfo: signal(initialState.pageInfo),
     error: signal(initialState.error),
+    stop: () => {},
   };
 
   const stop = effect(() => {
@@ -109,9 +109,11 @@ export function useQuery<
     return unsubscribe;
   });
 
+  state.stop = stop;
+
   onScopeDispose(() => {
     stop();
   });
 
-  return { state, query, stop };
+  return { state, query };
 }

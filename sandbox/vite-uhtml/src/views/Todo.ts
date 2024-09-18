@@ -1,9 +1,11 @@
-import { html, effect } from "uhtml/signal";
+import { html, effect, signal } from "uhtml/signal";
 import { useRoute } from "@/router";
 import { db, chatRoomoom } from "@/db";
 import { TodoForm, TodoList, TodoFooter } from "@/components/Todo";
 
-const { isLoading, data, error } = db.useQuery({ todos: {} });
+const q = { todos: {} };
+const query = signal(q);
+const { isLoading, data, error, stop } = db.useQuery(query);
 const alertError = {} as { current?: HTMLDivElement };
 
 effect(() => {
@@ -11,6 +13,15 @@ effect(() => {
     alertError.current?.scrollIntoView();
   }
 });
+
+function toggle() {
+  if (query.value) {
+    //@ts-ignore
+    query.value = null;
+  } else {
+    query.value = q;
+  }
+}
 
 export default function () {
   const todos = data.value?.todos || [];
@@ -36,5 +47,11 @@ export default function () {
           </div>`
         : ""}
     </div>
+    <button class="btn btn-outline" @click=${toggle}>
+      ${query.value ? "Pause" : "Restore"} live update
+    </button>
+    <button class="btn btn-outline" @click=${stop}>
+      Stop live update without recover
+    </button>
   </div>`;
 }
