@@ -2,13 +2,14 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import { weakHash, coerceQuery, i } from "@instantdb/core";
+import { weakHash, coerceQuery } from "@instantdb/core";
 import type {
   Query,
   Exactly,
   InstantClient,
   LifecycleSubscriptionState,
   InstaQLQueryParams,
+  InstantGraph,
 } from "@instantdb/core";
 import type {
   Signal,
@@ -46,14 +47,14 @@ function stateForResult(result: any) {
 }
 
 export function useQuery<
-  Q extends Schema extends i.InstantGraph<any, any>
+  Q extends Schema extends InstantGraph<any, any>
     ? InstaQLQueryParams<Schema>
     : Exactly<
         Query,
         //@ts-ignore TODO! same error in InstantReact with strict flag enabled
         Q
       >,
-  Schema extends {} | i.InstantGraph<any, any, {}>,
+  Schema extends {} | InstantGraph<any, any, {}>,
   WithCardinalityInference extends boolean
 >(
   _core: InstantClient<Schema, any, WithCardinalityInference>,

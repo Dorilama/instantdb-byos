@@ -8,7 +8,6 @@ import {
   Storage,
   txInit,
   _init_internal,
-  i,
 } from "@instantdb/core";
 import type {
   AuthState,
@@ -23,6 +22,7 @@ import type {
   InstaQLQueryParams,
   ConfigWithSchema,
   IDatabase,
+  InstantGraph,
 } from "@instantdb/core";
 import { useQuery } from "./useQuery";
 import type { UseQueryReturn } from "./useQuery";
@@ -63,7 +63,7 @@ type Arrayable<T> = T[] | T;
 export const defaultActivityStopTimeout = 1_000;
 
 export class InstantByosRoom<
-  Schema extends {} | i.InstantGraph<any, any, {}>,
+  Schema extends {} | InstantGraph<any, any, {}>,
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 > {
@@ -410,7 +410,7 @@ export class InstantByosRoom<
 }
 
 export class InstantByos<
-  Schema extends i.InstantGraph<any, any> | {} = {},
+  Schema extends InstantGraph<any, any> | {} = {},
   RoomSchema extends RoomSchemaShape = {},
   WithCardinalityInference extends boolean = false
 > implements IDatabase
@@ -418,9 +418,7 @@ export class InstantByos<
   //@ts-ignore TODO! same error in InstantReact with strict flag enabled
   public tx =
     txInit<
-      Schema extends i.InstantGraph<any, any>
-        ? Schema
-        : i.InstantGraph<any, any>
+      Schema extends InstantGraph<any, any> ? Schema : InstantGraph<any, any>
     >();
 
   public auth: Auth;
@@ -527,7 +525,7 @@ export class InstantByos<
    *  db.useQuery(auth.user ? { goals: {} } : null)
    */
   useQuery = <
-    Q extends Schema extends i.InstantGraph<any, any>
+    Q extends Schema extends InstantGraph<any, any>
       ? InstaQLQueryParams<Schema>
       : Exactly<
           Query,
@@ -537,6 +535,7 @@ export class InstantByos<
   >(
     query: MaybeSignal<null | Q>
   ): UseQueryReturn<Q, Schema, WithCardinalityInference> => {
+    //@ts-ignore TODO! same error in InstantReact
     return useQuery(this._core, query, this._fn).state;
   };
 

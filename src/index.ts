@@ -13,6 +13,20 @@ import type {
   AuthState,
   Query,
   Config,
+  InstaQLQueryParams,
+  // schema types
+  AttrsDefs,
+  CardinalityKind,
+  DataAttrDef,
+  EntitiesDef,
+  EntitiesWithLinks,
+  EntityDef,
+  InstantGraph,
+  LinkAttrDef,
+  LinkDef,
+  LinksDef,
+  ResolveAttrs,
+  ValueTypes,
 } from "@instantdb/core";
 
 import { InstantByos } from "./InstantByos";
@@ -43,6 +57,20 @@ export type {
   InstantQuery,
   InstantQueryResult,
   InstantSchema,
+  InstaQLQueryParams,
+  // schema types
+  AttrsDefs,
+  CardinalityKind,
+  DataAttrDef,
+  EntitiesDef,
+  EntitiesWithLinks,
+  EntityDef,
+  InstantGraph,
+  LinkAttrDef,
+  LinkDef,
+  LinksDef,
+  ResolveAttrs,
+  ValueTypes,
   //
   Signal,
   Computed,
