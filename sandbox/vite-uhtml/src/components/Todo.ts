@@ -1,4 +1,4 @@
-import { html, signal } from "uhtml/signal";
+import { html, signal, effect } from "uhtml/signal";
 import {
   addTodo,
   toggleAll,
@@ -48,6 +48,8 @@ export function TodoForm({ todos }: { todos: Todo[] }) {
   </div>`;
 }
 
+const checkboxRefs: Record<string, HTMLFormElement> = {};
+
 export function TodoList({
   todos,
   isLoading,
@@ -55,6 +57,11 @@ export function TodoList({
   todos: Todo[];
   isLoading: boolean;
 }) {
+  // TODO!
+  todos.forEach((todo) => {
+    checkboxRefs[todo.id]?.reset();
+  });
+
   const className = [
     isLoading && "skeleton min-h-10",
     "table border-t rounded-none",
@@ -66,12 +73,18 @@ export function TodoList({
       ${todos.map((todo) => {
         return html`<tr class="flex justify-between">
           <td class="flex-none flex items-center">
-            <input
-              type="checkbox"
-              class="checkbox checkbox-sm"
-              ?checked=${todo.done}
-              @change=${() => toggleDone(todo)}
-            />
+            <form
+              ref=${(el: HTMLFormElement) => {
+                checkboxRefs[todo.id] = el;
+              }}
+            >
+              <input
+                type="checkbox"
+                class="checkbox checkbox-sm"
+                ?checked=${todo.done}
+                @change=${() => toggleDone(todo)}
+              />
+            </form>
           </td>
 
           <td class="flex-auto flex items-center">
