@@ -99,6 +99,7 @@ export function useQuery<
   const stop = effect(() => {
     queryHash.value;
     if (!query.peek()) {
+      state.isLoading.value = false;
       return;
     }
     const unsubscribe = _core.subscribeQuery<Q>(query.peek(), (result) => {
