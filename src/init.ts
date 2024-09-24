@@ -40,10 +40,10 @@ import type { SignalFunctions } from "./types";
  *  const db = init<Schema>({ appId: "my-app-id" },{signal, computed, effect, toValue, onScopeDispose})
  *
  */
-export function init<Schema = {}, RoomSchema extends RoomSchemaShape = {}>(
-  config: Config,
-  signalFunctions: SignalFunctions
-) {
+export function init<
+  Schema extends {} = {},
+  RoomSchema extends RoomSchemaShape = {}
+>(config: Config, signalFunctions: SignalFunctions) {
   return new InstantByos<
     //@ts-ignore TODO! same error in InstantReact with strict flag enabled
     Schema,
