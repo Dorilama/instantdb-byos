@@ -26,7 +26,7 @@ import type {
 } from "@instantdb/core";
 import { useQuery } from "./useQuery";
 import type { UseQueryReturn } from "./useQuery";
-import type { Signal, MaybeSignal, SignalFunctions } from "./types";
+import type { Signal, Computed, MaybeSignal, SignalFunctions } from "./types";
 
 import { useTimeout } from "./useTimeout";
 
@@ -68,25 +68,21 @@ export class InstantByosRoom<
   RoomType extends keyof RoomSchema
 > {
   _core: InstantClient<Schema, RoomSchema>;
-  type: Signal<RoomType>;
-  id: Signal<string>;
+  type: Computed<RoomType>;
+  id: Computed<string>;
   _fn: SignalFunctions;
 
   constructor(
     _core: InstantClient<Schema, RoomSchema, any>,
-    type: MaybeSignal<RoomType>,
-    id: MaybeSignal<string>,
+    type: Computed<RoomType>,
+    id: Computed<string>,
     signalFunctions: SignalFunctions
   ) {
     this._core = _core;
 
     this._fn = signalFunctions;
-    this.type = this._fn.computed(() => {
-      return this._fn.toValue(type);
-    });
-    this.id = this._fn.computed(() => {
-      return this._fn.toValue(id);
-    });
+    this.type = type;
+    this.id = id;
   }
 
   /**
