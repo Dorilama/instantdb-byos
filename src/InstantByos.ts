@@ -63,7 +63,7 @@ type Arrayable<T> = T[] | T;
 export const defaultActivityStopTimeout = 1_000;
 
 export class InstantByosRoom<
-  Schema extends {} | InstantGraph<any, any, {}>,
+  Schema extends InstantGraph<any, any> | {},
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 > {
