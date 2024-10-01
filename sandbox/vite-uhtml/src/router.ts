@@ -63,6 +63,12 @@ export const routes = [
     component: modules["/src/views/TopicsIframe.ts"].default,
     meta: { label: "Topics", isNav: false },
   },
+  {
+    path: "/rooms",
+    name: "rooms",
+    component: modules["/src/views/Rooms.ts"].default,
+    meta: { label: "Rooms", isNav: true },
+  },
   notFound,
 ] as const;
 

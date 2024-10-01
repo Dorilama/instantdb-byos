@@ -231,19 +231,24 @@ export class InstantByosRoom<
       };
     };
 
-    const initialState = getInitialState();
-
     const state = {
-      peers: this._fn.signal(initialState.peers),
-      isLoading: this._fn.signal(initialState.isLoading),
-      user: this._fn.signal(initialState.user),
-      error: this._fn.signal(initialState.error),
+      peers: this._fn.signal({}),
+      isLoading: this._fn.signal(false),
+      user: this._fn.signal(undefined),
+      error: this._fn.signal(undefined),
     };
 
     const stop = this._fn.effect(() => {
       const id = this.id.value;
       const type = this.type.value;
       const _opts = this._fn.toValue(opts);
+
+      Object.entries(getInitialState()).forEach(([key, value]) => {
+        state[
+          key as keyof PresenceResponse<RoomSchema[RoomType]["presence"], Keys>
+        ].value = value;
+      });
+
       const unsubscribe = this._core._reactor.subscribePresence(
         type,
         id,
@@ -466,13 +471,20 @@ export class InstantByos<
    * } = db.room(roomType, roomId);
    */
   room<RoomType extends keyof RoomSchema>(
-    type: MaybeSignal<RoomType> = "_defaultRoomType" as RoomType,
-    id: MaybeSignal<string> = "_defaultRoomId"
+    type?: MaybeSignal<RoomType | undefined>,
+    id?: MaybeSignal<string | undefined>
   ) {
+    const _type = this._fn.computed(() => {
+      return this._fn.toValue(type) || ("_defaultRoomType" as RoomType);
+    });
+    const _id = this._fn.computed(() => {
+      return this._fn.toValue(id) || "_defaultRoomId";
+    });
+
     return new InstantByosRoom<Schema, RoomSchema, RoomType>(
       this._core,
-      type,
-      id,
+      _type,
+      _id,
       this._fn
     );
   }
