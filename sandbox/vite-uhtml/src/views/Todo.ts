@@ -1,6 +1,6 @@
-import { html, effect, signal } from "uhtml/signal";
+import { html, effect, signal, computed } from "uhtml/signal";
 import { useRoute } from "@/router";
-import { db, chatRoomoom } from "@/db";
+import { db, type Todo } from "@/db";
 import { TodoForm, TodoList, TodoFooter } from "@/components/Todo";
 
 const q = { todos: {} };
@@ -22,6 +22,45 @@ function toggle() {
     query.value = q;
   }
 }
+
+const once = {
+  todos: signal<Todo[] | null>(null),
+  error: signal<string | null>(null),
+  isLoading: signal(false),
+};
+
+async function queryOnce() {
+  if (once.isLoading.value) {
+    return;
+  }
+  once.isLoading.value = true;
+  once.error.value = null;
+  try {
+    const result = await db.queryOnce({ todos: {} });
+    once.todos.value = result.data.todos;
+  } catch (error) {
+    if (error instanceof Error) {
+      once.error.value = error.message || "unknown error";
+    } else {
+      once.error.value = "unknown error";
+    }
+    once.todos.value = null;
+  }
+  once.isLoading.value = false;
+}
+
+const queryOnceText = computed(() => {
+  console.log(once.todos.value);
+  if (once.error.value) {
+    return `QueryOnce Error: ${once.error.value} Click to update`;
+  }
+  if (once.todos.value === null) {
+    return `Use QueryOnce to get a static count of todos`;
+  }
+  return `QueryOnce: ${
+    Object.values(once.todos.value).length
+  } todos. Click to update`;
+});
 
 export default function () {
   const todos = data.value?.todos || [];
@@ -52,6 +91,19 @@ export default function () {
     </button>
     <button class="btn btn-outline" @click=${stop}>
       Stop live update without recover
+    </button>
+    <button
+      class=${[
+        "btn btn-outline mt-4",
+        once.isLoading.value && "skeleton",
+        once.error.value && "btn-error",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      @click=${queryOnce}
+      ?disabled=${once.isLoading.value}
+    >
+      ${queryOnceText.value}
     </button>
   </div>`;
 }
