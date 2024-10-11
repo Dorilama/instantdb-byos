@@ -39,14 +39,20 @@ export default function Cursors(
   props: Signal<{
     spaceId?: string;
     userCursorColor?: string;
+    propagate?: boolean;
   }>,
   children?: () => Hole,
-  attrs: { class?: string } = {}
+  attrs: {
+    class?: string;
+    onTouchMove?: (e: TouchEvent) => void;
+    onTouchEnd?: (e: TouchEvent) => void;
+  } = {}
 ) {
   const options = computed(() => {
     return {
       spaceId: props.value.spaceId,
       userCursorColor: props.value.userCursorColor,
+      propagate: props.value.propagate,
     };
   });
 
@@ -57,6 +63,8 @@ export default function Cursors(
     getCursor,
     onMouseMove,
     onMouseOut,
+    onTouchMove,
+    onTouchEnd,
     clearPresence,
     stop,
     getGlobalWrapperStyles,
@@ -71,6 +79,14 @@ export default function Cursors(
     style=${getGlobalWrapperStyles()}
     @mousemove=${onMouseMove}
     @mouseleave=${onMouseOut}
+    @touchmove=${(e: TouchEvent) => {
+      onTouchMove(e);
+      attrs.onTouchMove?.(e);
+    }}
+    @touchend=${(e: TouchEvent) => {
+      onTouchEnd(e);
+      attrs.onTouchEnd?.(e);
+    }}
   >
     ${children ? children() : html``}
     <div style=${getWrapperStyles()}>

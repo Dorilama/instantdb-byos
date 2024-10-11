@@ -15,8 +15,17 @@ const cursorOptions = computed(() => {
   return {
     spaceId,
     userCursorColor: color ? "#" + color : "",
+    propagate: true,
   };
 });
+
+function scroll(allow: boolean) {
+  if (allow) {
+    window.parent.document.body.classList.remove("block-scroll");
+  } else {
+    window.parent.document.body.classList.add("block-scroll");
+  }
+}
 
 function CustomCursor(props: { color: string }) {
   return html`<div
@@ -35,6 +44,12 @@ function Main() {
 
 const CS = Cursors(cursorOptions, Main, {
   class: "w-screen h-screen flex items-center justify-center",
+  onTouchMove: () => {
+    scroll(false);
+  },
+  onTouchEnd: () => {
+    scroll(true);
+  },
 });
 
 export default function () {

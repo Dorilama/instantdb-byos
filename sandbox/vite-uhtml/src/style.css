@@ -9,3 +9,8 @@
 #app {
   min-height: var(--dvh-full, 100vh);
 }
+
+.block-scroll {
+  height: 100%;
+  overflow: hidden;
+}
