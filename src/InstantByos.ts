@@ -571,19 +571,24 @@ export class InstantByos<
    *    return <Login />
    *  }
    */
-  useAuth = (): UseAuthReturn => {
+  useAuth = (): UseAuthReturn & { stop: () => void } => {
     const initialState = this._core._reactor._currentUserCached;
 
-    const state: UseAuthReturn = {
+    const state: UseAuthReturn & { stop: () => void } = {
       isLoading: this._fn.signal(initialState.isLoading),
       user: this._fn.signal(initialState.user),
       error: this._fn.signal(initialState.error),
+      stop: () => {},
     };
     const unsubscribe = this._core._reactor.subscribeAuth((resp: any) => {
       state.isLoading.value = false;
       state.user.value = resp.user;
       state.error.value = resp.error;
     });
+
+    state.stop = () => {
+      unsubscribe();
+    };
 
     this._fn.onScopeDispose(() => {
       unsubscribe();
