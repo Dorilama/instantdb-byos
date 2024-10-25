@@ -28,7 +28,13 @@ import type {
 } from "@instantdb/core";
 import { useQuery } from "./useQuery";
 import type { UseQueryReturn } from "./useQuery";
-import type { Signal, Computed, MaybeSignal, SignalFunctions } from "./types";
+import type {
+  Signal,
+  Computed,
+  MaybeSignal,
+  SignalFunctions,
+  OnScopeDisposeFn,
+} from "./types";
 
 import { useTimeout } from "./useTimeout";
 
@@ -159,7 +165,8 @@ export class InstantByosRoom<
    * }
    */
   usePublishTopic = <Topic extends keyof RoomSchema[RoomType]["topics"]>(
-    topic: MaybeSignal<Topic>
+    topic: MaybeSignal<Topic>,
+    onScopeDispose?: OnScopeDisposeFn
   ): ((data: RoomSchema[RoomType]["topics"][Topic]) => void) => {
     const stopRoomWatch = this._fn.effect(() => {
       const id = this.id.value;
@@ -183,10 +190,16 @@ export class InstantByosRoom<
       };
     });
 
-    this._fn.onScopeDispose(() => {
+    function cleanup() {
       stopRoomWatch();
       stopTopicWatch();
-    });
+    }
+
+    if (onScopeDispose) {
+      onScopeDispose(cleanup);
+    }
+
+    this._fn.onScopeDispose(cleanup);
 
     return publishTopic;
   };
@@ -296,27 +309,32 @@ export class InstantByosRoom<
   useSyncPresence = (
     data: MaybeSignal<Partial<RoomSchema[RoomType]["presence"]>>,
     deps?: MaybeSignal<any[]>
-  ): void => {
+  ): (() => void) => {
     const stopRoomWatch = this._fn.effect(() => {
       const id = this.id.value;
       const cleanup = this._core._reactor.joinRoom(id);
       return cleanup;
     });
 
-    const stop = this._fn.effect(() => {
+    const stopEffect = this._fn.effect(() => {
       const id = this.id.value;
       const type = this.type.value;
       const _data = this._fn.toValue(data);
       this._core._reactor.joinRoom(id);
-      // TODO! should this.type be a ref?
       this._core._reactor.publishPresence(type, id, _data);
       this._fn.toValue(deps);
     });
 
-    this._fn.onScopeDispose(() => {
+    function stop() {
       stopRoomWatch();
+      stopEffect();
+    }
+
+    this._fn.onScopeDispose(() => {
       stop();
     });
+
+    return stop;
   };
 
   /**
