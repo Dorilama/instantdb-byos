@@ -28,7 +28,7 @@ export default function () {
     heart: {},
   };
 
-  chatRoomoom.useTopicEffect("emoji", (event) => {
+  chatRoomoom.useTopicEffect("emoji", (event, peer, topic) => {
     const el = emojiRefs[event.text as keyof typeof emoji];
     if (!el.current) {
       return;

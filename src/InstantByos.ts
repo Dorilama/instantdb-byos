@@ -111,7 +111,8 @@ export class InstantByosRoom<
     onEvent: Arrayable<
       (
         event: RoomSchema[RoomType]["topics"][TopicType],
-        peer: RoomSchema[RoomType]["presence"]
+        peer: RoomSchema[RoomType]["presence"],
+        topic: TopicType
       ) => any
     >
   ): (() => void) => {
@@ -135,7 +136,7 @@ export class InstantByosRoom<
               peer: RoomSchema[RoomType]["presence"]
             ) => {
               callbacks.forEach((cb) => {
-                cb(event, peer);
+                cb(event, peer, topicType);
               });
             }
           );
