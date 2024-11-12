@@ -37,6 +37,7 @@ import type {
 } from "./types";
 
 import { useTimeout } from "./useTimeout";
+import version from "./version";
 
 type UseAuthReturn = { [K in keyof AuthState]: Signal<AuthState[K]> };
 
@@ -453,14 +454,16 @@ export class InstantByos<
 
   constructor(
     config: Config | ConfigWithSchema<any>,
-    signalFunctions: SignalFunctions
+    signalFunctions: SignalFunctions,
+    versions?: { [key: string]: string }
   ) {
     this._core = _init_internal<Schema, RoomSchema, WithCardinalityInference>(
       config,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.Storage,
       // @ts-expect-error because TS can't resolve subclass statics
-      this.constructor.NetworkListener
+      this.constructor.NetworkListener,
+      { ...(versions || {}), "@dorilama/instantdb-byos": version }
     );
     this.auth = this._core.auth;
     this.storage = this._core.storage;
