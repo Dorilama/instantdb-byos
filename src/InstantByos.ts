@@ -19,7 +19,7 @@ import type {
   PresenceOpts,
   PresenceResponse,
   RoomSchemaShape,
-  InstaQLQueryParams,
+  InstaQLParams,
   ConfigWithSchema,
   IDatabase,
   InstantGraph,
@@ -262,11 +262,14 @@ export class InstantByosRoom<
         ].value = value;
       });
 
+      // @instantdb/core v0.14.30 removes types for subscribePresence
+      // trying to restore types until fixed in core
+      // by adding type to parameter in callback
       const unsubscribe = this._core._reactor.subscribePresence(
         type,
         id,
         _opts,
-        (data) => {
+        (data: PresenceResponse<RoomSchema[RoomType]["presence"], Keys>) => {
           Object.entries(data).forEach(([key, value]) => {
             state[
               key as keyof PresenceResponse<
@@ -558,7 +561,7 @@ export class InstantByos<
    */
   useQuery = <
     Q extends Schema extends InstantGraph<any, any>
-      ? InstaQLQueryParams<Schema>
+      ? InstaQLParams<Schema>
       : Exactly<
           Query,
           //@ts-ignore TODO! same error in InstantReact with strict flag enabled
@@ -634,7 +637,7 @@ export class InstantByos<
    */
   queryOnce = <
     Q extends Schema extends InstantGraph<any, any>
-      ? InstaQLQueryParams<Schema>
+      ? InstaQLParams<Schema>
       : Exactly<Query, Q>
   >(
     query: Q
