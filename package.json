@@ -1,6 +1,6 @@
 {
   "name": "@dorilama/instantdb-byos",
-  "version": "0.1.21",
+  "version": "0.2.0",
   "description": "Unofficial Instant DB for bring your own signal reactivity",
   "author": "dorilama",
   "license": "ISC",
