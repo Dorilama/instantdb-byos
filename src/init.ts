@@ -2,8 +2,16 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import type { Config, InstantGraph, RoomSchemaShape } from "@instantdb/core";
+import type {
+  Config,
+  InstantConfig,
+  InstantGraph,
+  InstantSchemaDef,
+  RoomSchemaShape,
+  InstantUnknownSchema,
+} from "@instantdb/core";
 import { InstantByos } from "./InstantByos";
+import { InstantByosDatabase } from "./InstantByosDatabase";
 import type { SignalFunctions } from "./types";
 
 /**
@@ -44,28 +52,11 @@ export function init<
   Schema extends {} = {},
   RoomSchema extends RoomSchemaShape = {}
 >(config: Config, signalFunctions: SignalFunctions) {
-  return new InstantByos<
-    //@ts-ignore TODO! same error in InstantReact with strict flag enabled
-    Schema,
-    RoomSchema
-  >(config, signalFunctions);
+  return new InstantByos<Schema, RoomSchema>(config, signalFunctions);
 }
 
 export function init_experimental<
-  Schema extends InstantGraph<any, any, any>,
-  WithCardinalityInference extends boolean = true
->(
-  config: Config & {
-    schema: Schema;
-    cardinalityInference?: WithCardinalityInference;
-  },
-  signalFunctions: SignalFunctions
-) {
-  return new InstantByos<
-    Schema,
-    Schema extends InstantGraph<any, any, infer RoomSchema>
-      ? RoomSchema
-      : never,
-    WithCardinalityInference
-  >(config, signalFunctions);
+  Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
+>(config: InstantConfig<Schema>, signalFunctions: SignalFunctions) {
+  return new InstantByosDatabase<Schema>(config, signalFunctions);
 }

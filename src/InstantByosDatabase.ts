@@ -434,7 +434,7 @@ export class InstantByosRoom<
   };
 }
 
-export class InstantByos<
+export class InstantByosDatabase<
   Schema extends InstantSchemaDef<any, any, any>,
   Rooms extends RoomSchemaShape = RoomsOf<Schema>
 > implements IInstantDatabase<Schema>

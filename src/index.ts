@@ -11,11 +11,13 @@ import type {
   InstantObject,
   InstantEntity,
   InstantSchemaDatabase,
+  IInstantDatabase,
   User,
   AuthState,
   Query,
   Config,
-  InstaQLQueryParams,
+  InstantConfig,
+  InstaQLParams,
   // schema types
   AttrsDefs,
   CardinalityKind,
@@ -29,9 +31,15 @@ import type {
   LinksDef,
   ResolveAttrs,
   ValueTypes,
+  InstaQLEntity,
+  InstaQLResult,
+  InstantUnknownSchema,
+  InstantSchemaDef,
+  BackwardsCompatibleSchema,
 } from "@instantdb/core";
 
 import { InstantByos } from "./InstantByos";
+import { InstantByosDatabase } from "./InstantByosDatabase";
 import { init, init_experimental } from "./init";
 
 import { useCursors } from "./cursors";
@@ -48,9 +56,20 @@ import type {
   SignalFunctions,
 } from "./types";
 
-export { id, tx, lookup, init, init_experimental, InstantByos, i, useCursors };
+export {
+  id,
+  tx,
+  lookup,
+  init,
+  init_experimental,
+  InstantByos,
+  InstantByosDatabase,
+  i,
+  useCursors,
+};
 export type {
   Config,
+  InstantConfig,
   Query,
   QueryResponse,
   InstantObject,
@@ -61,7 +80,8 @@ export type {
   InstantSchema,
   InstantEntity,
   InstantSchemaDatabase,
-  InstaQLQueryParams,
+  IInstantDatabase,
+  InstaQLParams,
   // schema types
   AttrsDefs,
   CardinalityKind,
@@ -75,6 +95,11 @@ export type {
   LinksDef,
   ResolveAttrs,
   ValueTypes,
+  InstaQLEntity,
+  InstaQLResult,
+  InstantUnknownSchema,
+  InstantSchemaDef,
+  BackwardsCompatibleSchema,
   //
   Signal,
   Computed,
