@@ -3,31 +3,30 @@
 // see instantdb-license.md for license
 
 import {
-  InstantClient,
   Auth,
   Storage,
   txInit,
   _init_internal,
+  InstantCoreDatabase,
+  init_experimental,
 } from "@instantdb/core";
 import type {
   AuthState,
-  Config,
-  Query,
-  Exactly,
   TransactionChunk,
-  // LifecycleSubscriptionState,
   PresenceOpts,
   PresenceResponse,
   RoomSchemaShape,
   InstaQLParams,
-  ConfigWithSchema,
-  IDatabase,
-  InstantGraph,
-  QueryResponse,
+  InstantConfig,
   PageInfoResponse,
+  InstaQLLifecycleState,
+  InstaQLResponse,
+  RoomsOf,
+  InstantSchemaDef,
+  IInstantDatabase,
 } from "@instantdb/core";
-import { useQuery } from "./useQuery";
-import type { UseQueryReturn } from "./useQuery";
+import { useQueryInternal } from "./useQuery";
+import type { UseQueryInternalReturn } from "./useQuery";
 import type {
   Signal,
   Computed,
@@ -72,17 +71,17 @@ type Arrayable<T> = T[] | T;
 export const defaultActivityStopTimeout = 1_000;
 
 export class InstantByosRoom<
-  Schema extends InstantGraph<any, any> | {},
+  Schema extends InstantSchemaDef<any, any, any>,
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 > {
-  _core: InstantClient<Schema, RoomSchema>;
+  _core: InstantCoreDatabase<Schema>;
   type: Computed<RoomType>;
   id: Computed<string>;
   _fn: SignalFunctions;
 
   constructor(
-    _core: InstantClient<Schema, RoomSchema, any>,
+    _core: InstantCoreDatabase<Schema>,
     type: Computed<RoomType>,
     id: Computed<string>,
     signalFunctions: SignalFunctions
@@ -436,37 +435,27 @@ export class InstantByosRoom<
 }
 
 export class InstantByos<
-  Schema extends InstantGraph<any, any> | {} = {},
-  RoomSchema extends RoomSchemaShape = {},
-  WithCardinalityInference extends boolean = false
-> implements IDatabase
+  Schema extends InstantSchemaDef<any, any, any>,
+  Rooms extends RoomSchemaShape = RoomsOf<Schema>
+> implements IInstantDatabase<Schema>
 {
-  //@ts-ignore TODO! same error in InstantReact with strict flag enabled
-  public tx =
-    txInit<
-      Schema extends InstantGraph<any, any> ? Schema : InstantGraph<any, any>
-    >();
+  public tx = txInit<Schema>();
 
   public auth: Auth;
   public storage: Storage;
-  public _core: InstantClient<Schema, RoomSchema, WithCardinalityInference>;
+  public _core: InstantCoreDatabase<Schema>;
   public readonly _fn: SignalFunctions;
 
   static Storage?: any;
   static NetworkListener?: any;
 
-  constructor(
-    config: Config | ConfigWithSchema<any>,
-    signalFunctions: SignalFunctions,
-    versions?: { [key: string]: string }
-  ) {
-    this._core = _init_internal<Schema, RoomSchema, WithCardinalityInference>(
+  constructor(config: InstantConfig<Schema>, signalFunctions: SignalFunctions) {
+    this._core = init_experimental<Schema>(
       config,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.Storage,
       // @ts-expect-error because TS can't resolve subclass statics
-      this.constructor.NetworkListener,
-      { ...(versions || {}), "@dorilama/instantdb-byos": version }
+      this.constructor.NetworkListener
     );
     this.auth = this._core.auth;
     this.storage = this._core.storage;
@@ -493,7 +482,7 @@ export class InstantByos<
    *   useTypingIndicator,
    * } = db.room(roomType, roomId);
    */
-  room<RoomType extends keyof RoomSchema>(
+  room<RoomType extends keyof Rooms>(
     type?: MaybeSignal<RoomType | undefined>,
     id?: MaybeSignal<string | undefined>
   ) {
@@ -504,7 +493,7 @@ export class InstantByos<
       return this._fn.toValue(id) || "_defaultRoomId";
     });
 
-    return new InstantByosRoom<Schema, RoomSchema, RoomType>(
+    return new InstantByosRoom<Schema, Rooms, RoomType>(
       this._core,
       _type,
       _id,
@@ -559,19 +548,10 @@ export class InstantByos<
    *  // skip if `user` is not logged in
    *  db.useQuery(auth.user ? { goals: {} } : null)
    */
-  useQuery = <
-    Q extends Schema extends InstantGraph<any, any>
-      ? InstaQLParams<Schema>
-      : Exactly<
-          Query,
-          //@ts-ignore TODO! same error in InstantReact with strict flag enabled
-          Q
-        >
-  >(
+  useQuery = <Q extends InstaQLParams<Schema>>(
     query: MaybeSignal<null | Q>
-  ): UseQueryReturn<Q, Schema, WithCardinalityInference> => {
-    //@ts-ignore TODO! same error in InstantReact
-    return useQuery(this._core, query, this._fn).state;
+  ): UseQueryInternalReturn<Schema, Q> => {
+    return useQueryInternal(this._core, query, this._fn).state;
   };
 
   /**
@@ -635,14 +615,10 @@ export class InstantByos<
    *  const resp = await db.queryOnce({ goals: {} });
    *  console.log(resp.data.goals)
    */
-  queryOnce = <
-    Q extends Schema extends InstantGraph<any, any>
-      ? InstaQLParams<Schema>
-      : Exactly<Query, Q>
-  >(
+  queryOnce = <Q extends InstaQLParams<Schema>>(
     query: Q
   ): Promise<{
-    data: QueryResponse<Q, Schema, WithCardinalityInference>;
+    data: InstaQLResponse<Schema, Q>;
     pageInfo: PageInfoResponse<Q>;
   }> => {
     return this._core.queryOnce(query);
