@@ -11,6 +11,7 @@ import {
 } from "@instantdb/core";
 import type {
   AuthState,
+  ConnectionStatus,
   Config,
   Query,
   Exactly,
@@ -615,6 +616,47 @@ export class InstantByos<
     });
 
     return state;
+  };
+
+  /**
+   * Listen for connection status changes to Instant. Use this for things like
+   * showing connection state to users
+   *
+   * @see https://www.instantdb.com/docs/patterns#connection-status
+   * @example
+   *  function App() {
+   *    const status = db.useConnectionStatus()
+   *    const connectionState =
+   *      status === 'connecting' || status === 'opened'
+   *        ? 'authenticating'
+   *      : status === 'authenticated'
+   *        ? 'connected'
+   *      : status === 'closed'
+   *        ? 'closed'
+   *      : status === 'errored'
+   *        ? 'errored'
+   *      : 'unexpected state';
+   *
+   *    return <div>Connection state: {connectionState}</div>
+   *  }
+   */
+  useConnectionStatus = (
+    onScopeDispose?: OnScopeDisposeFn
+  ): Signal<ConnectionStatus> => {
+    const status = this._fn.signal<ConnectionStatus>(
+      this._core._reactor.status as ConnectionStatus
+    );
+    const unsubscribe = this._core.subscribeConnectionStatus((newStatus) => {
+      status.value = newStatus;
+    });
+
+    if (onScopeDispose) {
+      onScopeDispose(unsubscribe);
+    }
+
+    this._fn.onScopeDispose(unsubscribe);
+
+    return status;
   };
 
   /**

@@ -18,6 +18,7 @@ import type {
   Config,
   InstantConfig,
   InstaQLParams,
+  ConnectionStatus,
   // schema types
   AttrsDefs,
   CardinalityKind,
@@ -36,6 +37,7 @@ import type {
   InstantUnknownSchema,
   InstantSchemaDef,
   BackwardsCompatibleSchema,
+  InstantRules,
 } from "@instantdb/core";
 
 import { InstantByos } from "./InstantByos";
@@ -75,6 +77,7 @@ export type {
   InstantObject,
   User,
   AuthState,
+  ConnectionStatus,
   InstantQuery,
   InstantQueryResult,
   InstantSchema,
@@ -100,6 +103,7 @@ export type {
   InstantUnknownSchema,
   InstantSchemaDef,
   BackwardsCompatibleSchema,
+  InstantRules,
   //
   Signal,
   Computed,

@@ -1,6 +1,6 @@
 {
   "name": "@dorilama/instantdb-byos",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Unofficial Instant DB for bring your own signal reactivity",
   "author": "dorilama",
   "license": "ISC",
@@ -41,7 +41,7 @@
     "update": "npx rimraf package-lock.json node_modules sandbox/vite-uhtml/package-lock.json sandbox/vite-uhtml/node_modules && npm i --save-exact @instantdb/core@latest && cd sandbox/vite-uhtml && npm i"
   },
   "dependencies": {
-    "@instantdb/core": "0.16.0"
+    "@instantdb/core": "0.16.2"
   },
   "devDependencies": {
     "mkdist": "^1.5.5",
