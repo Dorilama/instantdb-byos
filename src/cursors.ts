@@ -171,7 +171,7 @@ export function useCursors<
     clearPresence(spaceId.value);
   }
 
-  _fn.onScopeDispose(() => {
+  _fn.onScopeDispose?.(() => {
     stop();
   });
 
