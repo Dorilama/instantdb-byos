@@ -6,7 +6,7 @@ import { OnScopeDisposeFn } from "./types";
 export function useTimeout({
   onScopeDispose,
 }: {
-  onScopeDispose: OnScopeDisposeFn;
+  onScopeDispose?: OnScopeDisposeFn;
 }) {
   let timeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -24,7 +24,7 @@ export function useTimeout({
     }
   }
 
-  onScopeDispose(() => {
+  onScopeDispose?.(() => {
     clear();
   });
 

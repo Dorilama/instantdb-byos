@@ -26,5 +26,5 @@ export type SignalFunctions = {
   computed: typeof ComputedFn;
   toValue: typeof ToValueFn;
   effect: EffectFn;
-  onScopeDispose: OnScopeDisposeFn;
+  onScopeDispose?: OnScopeDisposeFn;
 };

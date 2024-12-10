@@ -78,7 +78,7 @@ export function useQuery<
     computed: typeof ComputedFn;
     toValue: typeof ToValueFn;
     effect: EffectFn;
-    onScopeDispose: OnScopeDisposeFn;
+    onScopeDispose?: OnScopeDisposeFn;
   }
 ): {
   state: UseQueryReturn<Q, Schema, WithCardinalityInference>;
@@ -121,7 +121,7 @@ export function useQuery<
 
   state.stop = stop;
 
-  onScopeDispose(() => {
+  onScopeDispose?.(() => {
     stop();
   });
 
@@ -145,7 +145,7 @@ export function useQueryInternal<
     computed: typeof ComputedFn;
     toValue: typeof ToValueFn;
     effect: EffectFn;
-    onScopeDispose: OnScopeDisposeFn;
+    onScopeDispose?: OnScopeDisposeFn;
   }
 ): {
   state: UseQueryInternalReturn<Schema, Q>;
@@ -188,7 +188,7 @@ export function useQueryInternal<
 
   state.stop = stop;
 
-  onScopeDispose(() => {
+  onScopeDispose?.(() => {
     stop();
   });
 

@@ -147,7 +147,7 @@ export class InstantByosRoom<
       return unsubscribe;
     });
 
-    this._fn.onScopeDispose(() => {
+    this._fn.onScopeDispose?.(() => {
       stop();
     });
 
@@ -202,7 +202,7 @@ export class InstantByosRoom<
       onScopeDispose(cleanup);
     }
 
-    this._fn.onScopeDispose(cleanup);
+    this._fn.onScopeDispose?.(cleanup);
 
     return publishTopic;
   };
@@ -284,7 +284,7 @@ export class InstantByosRoom<
       return unsubscribe;
     });
 
-    this._fn.onScopeDispose(() => {
+    this._fn.onScopeDispose?.(() => {
       stop();
     });
 
@@ -336,7 +336,7 @@ export class InstantByosRoom<
       stopEffect();
     }
 
-    this._fn.onScopeDispose(() => {
+    this._fn.onScopeDispose?.(() => {
       stop();
     });
 
@@ -418,7 +418,7 @@ export class InstantByosRoom<
       timeout.clear();
     }
 
-    this._fn.onScopeDispose(() => {
+    this._fn.onScopeDispose?.(() => {
       stop();
     });
 
@@ -611,7 +611,7 @@ export class InstantByos<
       unsubscribe();
     };
 
-    this._fn.onScopeDispose(() => {
+    this._fn.onScopeDispose?.(() => {
       unsubscribe();
     });
 
@@ -654,7 +654,7 @@ export class InstantByos<
       onScopeDispose(unsubscribe);
     }
 
-    this._fn.onScopeDispose(unsubscribe);
+    this._fn.onScopeDispose?.(unsubscribe);
 
     return status;
   };

@@ -12,8 +12,6 @@ const toValue: typeof ToValueFn = (v) => {
   return v;
 };
 
-const onScopeDispose: OnScopeDisposeFn = () => {};
-
 // Visit https://instantdb.com/dash to get your APP_ID :)
 const APP_ID = import.meta.env["VITE_INSTANT_APP_ID"];
 
@@ -44,6 +42,6 @@ export type RoomSchema = {
 
 export const db = init<Schema, RoomSchema>(
   { appId: APP_ID },
-  { signal, computed, effect, toValue, onScopeDispose }
+  { signal, computed, effect, toValue }
 );
 export const chatRoomoom = db.room("chat", "dev");
