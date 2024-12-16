@@ -457,6 +457,7 @@ export class InstantByosDatabase<
     signalFunctions: SignalFunctions,
     extraConfig?: ExtraConfig
   ) {
+    extraConfig?.onBeforeInit?.();
     this._core = init_experimental<Schema>(
       config,
       // @ts-expect-error because TS can't resolve subclass statics

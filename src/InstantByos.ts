@@ -464,6 +464,7 @@ export class InstantByos<
     extraConfig?: ExtraConfig,
     versions?: { [key: string]: string }
   ) {
+    extraConfig?.onBeforeInit?.();
     this._core = _init_internal<Schema, RoomSchema, WithCardinalityInference>(
       config,
       // @ts-expect-error because TS can't resolve subclass statics

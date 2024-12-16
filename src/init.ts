@@ -17,6 +17,7 @@ import type { SignalFunctions } from "./types";
 export type ExtraConfig = Partial<{
   Storage: any;
   NetworkListener: any;
+  onBeforeInit: () => void;
 }>;
 
 /**
