@@ -39,6 +39,8 @@ import type {
 import { useTimeout } from "./useTimeout";
 import version from "./version";
 
+import type { ExtraConfig } from "./init";
+
 type UseAuthReturn = { [K in keyof AuthState]: Signal<AuthState[K]> };
 
 export type PresenceHandle<
@@ -450,13 +452,17 @@ export class InstantByosDatabase<
   static Storage?: any;
   static NetworkListener?: any;
 
-  constructor(config: InstantConfig<Schema>, signalFunctions: SignalFunctions) {
+  constructor(
+    config: InstantConfig<Schema>,
+    signalFunctions: SignalFunctions,
+    extraConfig?: ExtraConfig
+  ) {
     this._core = init_experimental<Schema>(
       config,
       // @ts-expect-error because TS can't resolve subclass statics
-      this.constructor.Storage,
+      extraConfig?.Storage || this.constructor.Storage,
       // @ts-expect-error because TS can't resolve subclass statics
-      this.constructor.NetworkListener
+      extraConfig?.NetworkListener || this.constructor.NetworkListener
     );
     this.auth = this._core.auth;
     this.storage = this._core.storage;

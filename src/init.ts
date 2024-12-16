@@ -14,6 +14,11 @@ import { InstantByos } from "./InstantByos";
 import { InstantByosDatabase } from "./InstantByosDatabase";
 import type { SignalFunctions } from "./types";
 
+export type ExtraConfig = Partial<{
+  Storage: any;
+  NetworkListener: any;
+}>;
+
 /**
  *
  * The first step: init your application!
@@ -51,12 +56,20 @@ import type { SignalFunctions } from "./types";
 export function init<
   Schema extends {} = {},
   RoomSchema extends RoomSchemaShape = {}
->(config: Config, signalFunctions: SignalFunctions) {
-  return new InstantByos<Schema, RoomSchema>(config, signalFunctions);
+>(config: Config, signalFunctions: SignalFunctions, extraConfig?: ExtraConfig) {
+  return new InstantByos<Schema, RoomSchema>(
+    config,
+    signalFunctions,
+    extraConfig
+  );
 }
 
 export function init_experimental<
   Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
->(config: InstantConfig<Schema>, signalFunctions: SignalFunctions) {
-  return new InstantByosDatabase<Schema>(config, signalFunctions);
+>(
+  config: InstantConfig<Schema>,
+  signalFunctions: SignalFunctions,
+  extraConfig?: ExtraConfig
+) {
+  return new InstantByosDatabase<Schema>(config, signalFunctions, extraConfig);
 }
