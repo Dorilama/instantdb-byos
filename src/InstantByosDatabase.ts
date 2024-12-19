@@ -46,7 +46,7 @@ export type PresenceHandle<
   Keys extends keyof PresenceShape,
   State = PresenceResponse<PresenceShape, Keys>
 > = { [K in keyof State]: Signal<State[K]> } & {
-  publishPresence: (data: Partial<PresenceShape>) => void;
+  publishPresence: (data?: Partial<PresenceShape>) => void;
   stop: () => void;
 };
 
@@ -312,7 +312,7 @@ export class InstantByosRoom<
    *  }
    */
   useSyncPresence = (
-    data: MaybeSignal<Partial<RoomSchema[RoomType]["presence"]>>,
+    data: MaybeSignal<Partial<RoomSchema[RoomType]["presence"] | undefined>>,
     deps?: MaybeSignal<any[]>
   ): (() => void) => {
     const stopRoomWatch = this._fn.effect(() => {
