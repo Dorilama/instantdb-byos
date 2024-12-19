@@ -1,11 +1,11 @@
 import { html } from "uhtml/signal";
 import { hideInstantDevTools } from "@/utils";
-import { chatRoomoom } from "@/db";
+import { chatRoom } from "@/db";
 
 let hidden = false;
 
-const { user } = chatRoomoom.usePresence();
-const publishTopic = chatRoomoom.usePublishTopic("emoji");
+const { user } = chatRoom.usePresence();
+const publishTopic = chatRoom.usePublishTopic("emoji");
 
 export default function () {
   if (!hidden) {
@@ -28,7 +28,7 @@ export default function () {
     heart: {},
   };
 
-  chatRoomoom.useTopicEffect("emoji", (event, peer, topic) => {
+  chatRoom.useTopicEffect("emoji", (event, peer, topic) => {
     const el = emojiRefs[event.text as keyof typeof emoji];
     if (!el.current) {
       return;

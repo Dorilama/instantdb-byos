@@ -1,7 +1,7 @@
 import "./style.css";
 import { html, render, effect, computed } from "uhtml/signal";
 import { RouteView, useRoute } from "./router";
-import { chatRoomoom } from "./db";
+import { chatRoom } from "./db";
 import { useUserPresenceValue } from "./db/composables";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
@@ -15,7 +15,7 @@ const {
   peers,
   publishPresence,
   isLoading: isLoadingPresence,
-} = chatRoomoom.usePresence();
+} = chatRoom.usePresence();
 
 effect(() => {
   const presence = userPresenceValue.value;

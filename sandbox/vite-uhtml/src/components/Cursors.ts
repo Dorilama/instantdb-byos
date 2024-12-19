@@ -1,6 +1,6 @@
 import { attr, Hole, html, effect, Signal, computed } from "uhtml/signal";
 import { useCursors } from "@dorilama/instantdb-byos";
-import { db, chatRoomoom } from "@/db";
+import { db, chatRoom } from "@/db";
 
 function Cursor(props: { color?: string } = {}) {
   const size = 35;
@@ -70,7 +70,7 @@ export default function Cursors(
     getGlobalWrapperStyles,
     getWrapperStyles,
     getCursorStyles,
-  } = useCursors(chatRoomoom, options);
+  } = useCursors(chatRoom, options);
 
   return (
     customCursor?: (props: { color: string; presence: any }) => Hole

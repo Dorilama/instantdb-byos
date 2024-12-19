@@ -1,9 +1,12 @@
 import {
   init,
   type ToValueFn,
-  OnScopeDisposeFn,
+  type InstaQLParams,
+  type InstaQLResult,
 } from "@dorilama/instantdb-byos";
 import { signal, computed, effect, Signal } from "uhtml/signal";
+
+import schema from "../../instant.schema";
 
 const toValue: typeof ToValueFn = (v) => {
   if (v instanceof Signal) {
@@ -15,33 +18,14 @@ const toValue: typeof ToValueFn = (v) => {
 // Visit https://instantdb.com/dash to get your APP_ID :)
 const APP_ID = import.meta.env["VITE_INSTANT_APP_ID"];
 
-// Optional: Declare your schema for intellisense!
-export interface Todo {
-  id: string;
-  text: string;
-  done: boolean;
-  createdAt: number;
-}
-
-export type Schema = {
-  todos: Todo;
-};
-
-export type RoomSchema = {
-  chat: {
-    presence: {
-      userId: string;
-      color: string;
-      path: string;
-    };
-    topics: {
-      emoji: { text: string; color?: string };
-    };
-  };
-};
-
-export const db = init<Schema, RoomSchema>(
-  { appId: APP_ID },
+export const db = init(
+  { appId: APP_ID, schema },
   { signal, computed, effect, toValue }
 );
-export const chatRoomoom = db.room("chat", "dev");
+export const chatRoom = db.room("chat", "dev");
+
+const todosQuery = { todos: {} } satisfies InstaQLParams<typeof schema>;
+
+type TodosResult = InstaQLResult<typeof schema, typeof todosQuery>;
+
+export type Todo = TodosResult["todos"][number];

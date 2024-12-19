@@ -1,7 +1,6 @@
 import { computed } from "uhtml/signal";
 import { useRoute, routes as _routes } from "@/router";
-import { db, chatRoomoom } from "@/db";
-import type { RoomSchema } from "@/db";
+import { db, chatRoom } from "@/db";
 
 export const fixedRandomColor =
   "#" + Math.floor(Math.random() * 16777215).toString(16);
@@ -13,7 +12,7 @@ export function useUserPresenceValue() {
 
   const { user } = db.useAuth();
 
-  const userPresence = computed<RoomSchema["chat"]["presence"]>(() => {
+  const userPresence = computed(() => {
     return {
       userId: user.value?.id || anonUser,
       color: fixedRandomColor,
@@ -34,7 +33,7 @@ export function usePeerStats() {
     path: "/",
     meta: {} as Record<string, unknown>,
   };
-  const { peers, user } = chatRoomoom.usePresence();
+  const { peers, user } = chatRoom.usePresence();
 
   const count = computed<{
     byPath: Record<(typeof routes)[number]["path"], number>;

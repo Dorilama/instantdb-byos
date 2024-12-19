@@ -1,13 +1,13 @@
 import { html, computed } from "uhtml/signal";
 import { routes, useRoute } from "@/router";
-import { chatRoomoom } from "@/db";
+import { chatRoom } from "@/db";
 import { hideInstantDevTools } from "@/utils";
 
 let hidden = false;
 
-const presence = chatRoomoom.usePresence();
+const presence = chatRoom.usePresence();
 
-const { active, inputProps } = chatRoomoom.useTypingIndicator("typing");
+const { active, inputProps } = chatRoom.useTypingIndicator("typing");
 
 const activeMap = computed(() =>
   Object.fromEntries(

@@ -6,9 +6,8 @@ import {
   Auth,
   Storage,
   txInit,
-  _init_internal,
   InstantCoreDatabase,
-  init_experimental,
+  init as core_init,
 } from "@instantdb/core";
 import type {
   AuthState,
@@ -37,7 +36,6 @@ import type {
 } from "./types";
 
 import { useTimeout } from "./useTimeout";
-import version from "./version";
 
 import type { ExtraConfig } from "./init";
 
@@ -455,15 +453,17 @@ export class InstantByosDatabase<
   constructor(
     config: InstantConfig<Schema>,
     signalFunctions: SignalFunctions,
-    extraConfig?: ExtraConfig
+    extraConfig?: ExtraConfig,
+    versions?: { [key: string]: string }
   ) {
     extraConfig?.onBeforeInit?.();
-    this._core = init_experimental<Schema>(
+    this._core = core_init<Schema>(
       config,
       // @ts-expect-error because TS can't resolve subclass statics
       extraConfig?.Storage || this.constructor.Storage,
       // @ts-expect-error because TS can't resolve subclass statics
-      extraConfig?.NetworkListener || this.constructor.NetworkListener
+      extraConfig?.NetworkListener || this.constructor.NetworkListener,
+      versions
     );
     this.auth = this._core.auth;
     this.storage = this._core.storage;

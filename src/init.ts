@@ -3,16 +3,13 @@
 // see instantdb-license.md for license
 
 import type {
-  Config,
   InstantConfig,
-  InstantGraph,
   InstantSchemaDef,
-  RoomSchemaShape,
   InstantUnknownSchema,
 } from "@instantdb/core";
-import { InstantByos } from "./InstantByos";
 import { InstantByosDatabase } from "./InstantByosDatabase";
 import type { SignalFunctions } from "./types";
+import version from "./version";
 
 export type ExtraConfig = Partial<{
   Storage: any;
@@ -30,10 +27,6 @@ export type ExtraConfig = Partial<{
  *  import { signal, computed, effect, Signal} from '@preact/signals'
  *  import {init, type ToValueFn} from '@dorilama/instantdb-byos'
  *
- *  function onScopeDispose(){
- *    // cleanup
- *  }
- *
  *  const toValue: typeof ToValueFn= (maybeSignal) => {
  *    if(maybeSignal instanceof Signal){
  *      return maybeSignal.value
@@ -41,36 +34,39 @@ export type ExtraConfig = Partial<{
  *    return maybeSignal
  *  }
  *
- *  const db = init({ appId: "my-app-id" },{signal, computed, effect, toValue, onScopeDispose})
+ *  const db = init({ appId: "my-app-id" },{signal, computed, effect, toValue})
  *
  * // You can also provide a a schema for type safety and editor autocomplete!
  *
- *  type Schema = {
- *    goals: {
- *      title: string
- *    }
- *  }
+ * import schema from ""../instant.schema.ts";
  *
- *  const db = init<Schema>({ appId: "my-app-id" },{signal, computed, effect, toValue, onScopeDispose})
+ * const db = init({ appId: "my-app-id", schema },{signal, computed, effect, toValue, onScopeDispose})
  *
  */
 export function init<
-  Schema extends {} = {},
-  RoomSchema extends RoomSchemaShape = {}
->(config: Config, signalFunctions: SignalFunctions, extraConfig?: ExtraConfig) {
-  return new InstantByos<Schema, RoomSchema>(
-    config,
-    signalFunctions,
-    extraConfig
-  );
-}
-
-export function init_experimental<
   Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
 >(
   config: InstantConfig<Schema>,
   signalFunctions: SignalFunctions,
   extraConfig?: ExtraConfig
 ) {
-  return new InstantByosDatabase<Schema>(config, signalFunctions, extraConfig);
+  return new InstantByosDatabase<Schema>(config, signalFunctions, extraConfig, {
+    "@dorilama/instantdb-byos": version,
+  });
 }
+
+/**
+ * @deprecated
+ * `init_experimental` is deprecated. You can replace it with `init`.
+ *
+ * @example
+ *
+ * // Before
+ * import { init_experimental } from "@dorilama/instantdb-byos"
+ * const db = init_experimental({  ...  });
+ *
+ * // After
+ * import { init } from "@dorilama/instantdb-byos"
+ * const db = init({ ...  });
+ */
+export const init_experimental = init;

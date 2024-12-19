@@ -1,6 +1,6 @@
 import { html, computed } from "uhtml/signal";
 import { parseUrl } from "@/router";
-import { chatRoomoom } from "@/db";
+import { chatRoom } from "@/db";
 import { hideInstantDevTools } from "@/utils";
 import Cursors from "@/components/Cursors";
 

@@ -1,8 +1,8 @@
 import { html, computed } from "uhtml/signal";
 import { routes } from "@/router";
-import { chatRoomoom } from "@/db";
+import { chatRoom } from "@/db";
 
-const { user } = chatRoomoom.usePresence();
+const { user } = chatRoom.usePresence();
 
 const src = computed(
   () => "/#" + routes.find((r) => r.name === "cursorsIframe")?.path

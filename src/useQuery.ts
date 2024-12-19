@@ -6,7 +6,6 @@ import { weakHash, coerceQuery, InstantCoreDatabase } from "@instantdb/core";
 import type {
   Query,
   Exactly,
-  InstantClient,
   LifecycleSubscriptionState,
   InstaQLParams,
   InstantGraph,
@@ -24,20 +23,6 @@ import type {
   OnScopeDisposeFn,
 } from "./types";
 
-export type UseQueryReturn<
-  Q,
-  Schema,
-  WithCardinalityInference extends boolean
-> = {
-  [K in keyof LifecycleSubscriptionState<
-    Q,
-    Schema,
-    WithCardinalityInference
-  >]: Signal<
-    LifecycleSubscriptionState<Q, Schema, WithCardinalityInference>[K]
-  >;
-} & { stop: () => void };
-
 export type UseQueryInternalReturn<Schema, Q> = {
   [K in keyof InstaQLLifecycleState<Schema, Q>]: Signal<
     InstaQLLifecycleState<Schema, Q>[K]
@@ -52,80 +37,6 @@ function stateForResult(result: any) {
     error: undefined,
     ...(result ? result : {}),
   };
-}
-
-export function useQuery<
-  Q extends Schema extends InstantGraph<any, any>
-    ? InstaQLParams<Schema>
-    : Exactly<
-        Query,
-        //@ts-ignore TODO! same error in InstantReact with strict flag enabled
-        Q
-      >,
-  Schema extends InstantGraph<any, any, any> | {},
-  WithCardinalityInference extends boolean
->(
-  _core: InstantClient<Schema, any, WithCardinalityInference>,
-  _query: MaybeSignal<null | Q>,
-  {
-    signal,
-    computed,
-    toValue,
-    effect,
-    onScopeDispose,
-  }: {
-    signal: typeof SignalFn;
-    computed: typeof ComputedFn;
-    toValue: typeof ToValueFn;
-    effect: EffectFn;
-    onScopeDispose?: OnScopeDisposeFn;
-  }
-): {
-  state: UseQueryReturn<Q, Schema, WithCardinalityInference>;
-  query: any;
-} {
-  const query = computed(() => {
-    const value = toValue(_query);
-    return value ? coerceQuery(value) : null;
-  });
-  const queryHash = computed(() => {
-    return weakHash(query.value);
-  });
-
-  const initialState = stateForResult(
-    _core._reactor.getPreviousResult(query.value)
-  );
-
-  const state: UseQueryReturn<Q, Schema, WithCardinalityInference> = {
-    isLoading: signal(initialState.isLoading),
-    data: signal(initialState.data),
-    pageInfo: signal(initialState.pageInfo),
-    error: signal(initialState.error),
-    stop: () => {},
-  };
-
-  const stop = effect(() => {
-    queryHash.value;
-    if (!query.peek()) {
-      state.isLoading.value = false;
-      return;
-    }
-    const unsubscribe = _core.subscribeQuery<Q>(query.peek(), (result) => {
-      state.isLoading.value = !Boolean(result);
-      state.data.value = result.data;
-      state.pageInfo.value = result.pageInfo;
-      state.error.value = result.error;
-    });
-    return unsubscribe;
-  });
-
-  state.stop = stop;
-
-  onScopeDispose?.(() => {
-    stop();
-  });
-
-  return { state, query };
 }
 
 export function useQueryInternal<

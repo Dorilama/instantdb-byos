@@ -15,7 +15,6 @@ import type {
   User,
   AuthState,
   Query,
-  Config,
   InstantConfig,
   InstaQLParams,
   ConnectionStatus,
@@ -40,7 +39,6 @@ import type {
   InstantRules,
 } from "@instantdb/core";
 
-import { InstantByos } from "./InstantByos";
 import { InstantByosDatabase } from "./InstantByosDatabase";
 import { init, init_experimental } from "./init";
 
@@ -64,13 +62,11 @@ export {
   lookup,
   init,
   init_experimental,
-  InstantByos,
   InstantByosDatabase,
   i,
   useCursors,
 };
 export type {
-  Config,
   InstantConfig,
   Query,
   QueryResponse,
