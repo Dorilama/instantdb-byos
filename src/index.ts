@@ -37,6 +37,8 @@ import type {
   InstantSchemaDef,
   BackwardsCompatibleSchema,
   InstantRules,
+  UpdateParams,
+  LinkParams,
 } from "@instantdb/core";
 
 import { InstantByosDatabase } from "./InstantByosDatabase";
@@ -100,6 +102,8 @@ export type {
   InstantSchemaDef,
   BackwardsCompatibleSchema,
   InstantRules,
+  UpdateParams,
+  LinkParams,
   //
   Signal,
   Computed,
