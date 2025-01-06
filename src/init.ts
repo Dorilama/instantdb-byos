@@ -7,15 +7,9 @@ import type {
   InstantSchemaDef,
   InstantUnknownSchema,
 } from "@instantdb/core";
-import { InstantByosDatabase } from "./InstantByosDatabase";
+import InstantByosWebDatabase from "./InstantByosWebDatabase";
 import type { SignalFunctions } from "./types";
 import version from "./version";
-
-export type ExtraConfig = Partial<{
-  Storage: any;
-  NetworkListener: any;
-  onBeforeInit: () => void;
-}>;
 
 /**
  *
@@ -45,12 +39,8 @@ export type ExtraConfig = Partial<{
  */
 export function init<
   Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
->(
-  config: InstantConfig<Schema>,
-  signalFunctions: SignalFunctions,
-  extraConfig?: ExtraConfig
-) {
-  return new InstantByosDatabase<Schema>(config, signalFunctions, extraConfig, {
+>(config: InstantConfig<Schema>, signalFunctions: SignalFunctions) {
+  return new InstantByosWebDatabase<Schema>(config, signalFunctions, {
     "@dorilama/instantdb-byos": version,
   });
 }

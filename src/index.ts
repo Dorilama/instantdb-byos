@@ -41,7 +41,7 @@ import type {
   LinkParams,
 } from "@instantdb/core";
 
-import { InstantByosDatabase } from "./InstantByosDatabase";
+import InstantByosWebDatabase from "./InstantByosWebDatabase";
 import { init, init_experimental } from "./init";
 
 import { useCursors } from "./cursors";
@@ -64,7 +64,7 @@ export {
   lookup,
   init,
   init_experimental,
-  InstantByosDatabase,
+  InstantByosWebDatabase,
   i,
   useCursors,
 };
