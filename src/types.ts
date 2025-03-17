@@ -28,3 +28,5 @@ export type SignalFunctions = {
   effect: EffectFn;
   onScopeDispose?: OnScopeDisposeFn;
 };
+
+export type Arrayable<T> = T[] | T;

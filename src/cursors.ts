@@ -1,4 +1,4 @@
-import type { InstantByosRoom } from "./InstantByosDatabase";
+import type { InstantByosRoom } from "./InstantByosRoom";
 import type { RoomSchemaShape } from "@instantdb/core";
 import type { MaybeSignal, OnScopeDisposeFn } from "./types";
 
