@@ -33,6 +33,7 @@ import type {
   ResolveAttrs,
   ValueTypes,
   InstaQLEntity,
+  InstaQLFields,
   InstaQLResult,
   InstantUnknownSchema,
   InstantSchemaDef,
@@ -87,6 +88,7 @@ export type {
   InstantSchemaDatabase,
   IInstantDatabase,
   InstaQLParams,
+  InstaQLFields,
   // schema types
   AttrsDefs,
   CardinalityKind,

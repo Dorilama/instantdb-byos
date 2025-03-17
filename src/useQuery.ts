@@ -5,6 +5,7 @@
 import { weakHash, coerceQuery, InstantCoreDatabase } from "@instantdb/core";
 import type {
   InstaQLParams,
+  InstaQLOptions,
   InstaQLLifecycleState,
   InstantSchemaDef,
 } from "@instantdb/core";
@@ -40,6 +41,7 @@ export function useQueryInternal<
 >(
   _core: InstantCoreDatabase<Schema>,
   _query: MaybeSignal<null | Q>,
+  _opts: MaybeSignal<InstaQLOptions | null> | undefined,
   {
     signal,
     computed,
@@ -58,8 +60,12 @@ export function useQueryInternal<
   query: any;
 } {
   const query = computed(() => {
-    const value = toValue(_query);
-    return value ? coerceQuery(value) : null;
+    let __query = toValue(_query);
+    const __opts = toValue(_opts);
+    if (__query && __opts && "ruleParams" in __opts) {
+      __query = { $$ruleParams: __opts["ruleParams"], ...__query };
+    }
+    return __query ? coerceQuery(__query) : null;
   });
   const queryHash = computed(() => {
     return weakHash(query.value);

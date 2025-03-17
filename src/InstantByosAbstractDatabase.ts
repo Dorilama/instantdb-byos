@@ -17,6 +17,7 @@ import type {
   PresenceOpts,
   RoomSchemaShape,
   InstaQLParams,
+  InstaQLOptions,
   InstantConfig,
   PageInfoResponse,
   InstaQLResponse,
@@ -287,9 +288,10 @@ export default abstract class InstantByosAbstractDatabase<
    *  db.useQuery(auth.user ? { goals: {} } : null)
    */
   useQuery = <Q extends InstaQLParams<Schema>>(
-    query: MaybeSignal<null | Q>
+    query: MaybeSignal<null | Q>,
+    opts?: MaybeSignal<InstaQLOptions | null>
   ): UseQueryInternalReturn<Schema, Q> => {
-    return useQueryInternal(this._core, query, this._fn).state;
+    return useQueryInternal(this._core, query, opts, this._fn).state;
   };
 
   /**
