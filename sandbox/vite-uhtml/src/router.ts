@@ -69,6 +69,12 @@ export const routes = [
     component: modules["/src/views/Rooms.ts"].default,
     meta: { label: "Rooms", isNav: true },
   },
+  {
+    path: "/docs",
+    name: "docs",
+    component: modules["/src/views/Docs.ts"].default,
+    meta: { label: "Docs", isNav: true },
+  },
   notFound,
 ] as const;
 
