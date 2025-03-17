@@ -30,3 +30,10 @@ export type SignalFunctions = {
 };
 
 export type Arrayable<T> = T[] | T;
+
+export type Rest<T extends any[]> = ((...p: T) => void) extends (
+  p1: infer P1,
+  ...rest: infer R
+) => void
+  ? R
+  : never;

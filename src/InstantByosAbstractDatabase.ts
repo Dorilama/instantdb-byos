@@ -34,6 +34,7 @@ import type {
   SignalFunctions,
   OnScopeDisposeFn,
   Arrayable,
+  Rest,
 } from "./types";
 import { InstantByosRoom, rooms } from "./InstantByosRoom";
 
@@ -117,7 +118,87 @@ export default abstract class InstantByosAbstractDatabase<
    *  const { peers } = db.rooms.usePresence(room);
    *  const publish = db.rooms.usePublishTopic(room, 'emoji');
    */
-  rooms = rooms;
+  rooms = {
+    /**
+     * Listen for broadcasted events given a room and topic.
+     *
+     * @see https://instantdb.com/docs/presence-and-topics
+     * @example
+     *  const roomId = signal("");
+     *  const room = db.room('chats', roomId);
+     *  db.rooms.useTopicEffect(room, 'emoji', (message, peer) => {
+     *    console.log(peer.name, 'sent', message);
+     *  });
+     */
+    useTopicEffect: (...args: Rest<Parameters<typeof rooms.useTopicEffect>>) =>
+      rooms.useTopicEffect(this._fn, ...args),
+    /**
+     * Broadcast an event to a room.
+     *
+     * @see https://instantdb.com/docs/presence-and-topics
+     * @example
+     *  const roomId = signal("");
+     *  const room = db.room('chats', roomId);
+     *  const publishTopic = db.rooms.usePublishTopic(room, "emoji");
+     *
+     *  function App() {
+     *    return (
+     *      <button onClick={() => publishTopic({ emoji: "🔥" })}>Send emoj</button>
+     *    );
+     *  }
+     */
+    usePublishTopic: (
+      ...args: Rest<Parameters<typeof rooms.usePublishTopic>>
+    ) => rooms.usePublishTopic(this._fn, ...args),
+    /**
+     * Listen for peer's presence data in a room, and publish the current user's presence.
+     *
+     * @see https://instantdb.com/docs/presence-and-topics
+     * @example
+     *  const roomId = signal("");
+     *  const room = db.room('chats', roomId);
+     *  const {
+     *    peers,
+     *    publishPresence
+     *  } = db.rooms.usePresence(room, { keys: ["name", "avatar"] });
+     */
+    usePresence: (...args: Rest<Parameters<typeof rooms.usePresence>>) =>
+      rooms.usePresence(this._fn, ...args),
+    /**
+     * Publishes presence data to a room
+     *
+     * @see https://instantdb.com/docs/presence-and-topics
+     * @example
+     *  const roomId = signal("");
+     *  const room = db.room('chats', roomId);
+     *  db.rooms.useSyncPresence(room, { name, avatar, color });
+     */
+    useSyncPresence: (
+      ...args: Rest<Parameters<typeof rooms.useSyncPresence>>
+    ) => rooms.useSyncPresence(this._fn, ...args),
+    /**
+     * Manage typing indicator state
+     *
+     * @see https://instantdb.com/docs/presence-and-topics
+     * @example
+     *  const roomId = signal("");
+     *  const room = db.room('chats', roomId);
+     *  const {
+     *    active,
+     *    setActive,
+     *    inputProps,
+     *  } = db.rooms.useTypingIndicator(room, "chat-input");
+     *
+     *  function App() {
+     *    return (
+     *      <input onBlur="inputProps.onBlur" onKeydown="inputProps.onKeyDown"/>
+     *    );
+     *  }
+     */
+    useTypingIndicator: (
+      ...args: Rest<Parameters<typeof rooms.useTypingIndicator>>
+    ) => rooms.useTypingIndicator(this._fn, ...args),
+  };
 
   /**
    * Use this to write data! You can create, update, delete, and link objects
