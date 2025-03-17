@@ -2,6 +2,7 @@ import { html, effect, signal, computed } from "uhtml/signal";
 import { useRoute } from "@/router";
 import { db, type Todo } from "@/db";
 import { TodoForm, TodoList, TodoFooter } from "@/components/Todo";
+import { type User } from "@dorilama/instantdb-byos";
 
 const q = { todos: {} };
 const query = signal(q);
@@ -62,6 +63,49 @@ const queryOnceText = computed(() => {
   } todos. Click to update`;
 });
 
+const userOnce = {
+  user: signal<User | null>(null),
+  error: signal<string | null>(null),
+  isLoading: signal(false),
+  firstLoad: signal(true),
+};
+
+async function getAuth() {
+  if (userOnce.isLoading.value) {
+    return;
+  }
+  userOnce.isLoading.value = true;
+  userOnce.error.value = null;
+  try {
+    const result = await db.getAuth();
+    userOnce.user.value = result;
+  } catch (error) {
+    if (error instanceof Error) {
+      userOnce.error.value = error.message || "unknown error";
+    } else {
+      userOnce.error.value = "unknown error";
+    }
+    userOnce.user.value = null;
+  }
+  userOnce.isLoading.value = false;
+  userOnce.firstLoad.value = false;
+}
+
+const userOnceText = computed(() => {
+  if (userOnce.error.value) {
+    return `GetAuth Error: ${userOnce.error.value} Click to update`;
+  }
+  if (userOnce.user.value === null) {
+    if (userOnce.firstLoad.value) {
+      return `Use GetAuth to get the static value of the user`;
+    }
+    return `Not logged in. Click to update.`;
+  }
+  return `User: ${
+    userOnce.user.value.email || "missing email"
+  }. Click to update`;
+});
+
 const connectionStatus = db.useConnectionStatus();
 
 export default function () {
@@ -76,7 +120,7 @@ export default function () {
       ${
         error.value
           ? html`<div
-              ref=${alertError}
+              signal=${alertError}
               role="alert"
               class="alert alert-error rounded-lg rounded-tl-none rounded-tr-none"
             >
@@ -113,6 +157,19 @@ export default function () {
         ?disabled=${once.isLoading.value}
       >
         ${queryOnceText.value}
+      </button>
+      <button
+        class=${[
+          "btn btn-outline mt-4",
+          userOnce.isLoading.value && "skeleton",
+          userOnce.error.value && "btn-error",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        @click=${getAuth}
+        ?disabled=${userOnce.isLoading.value}
+      >
+        ${userOnceText.value}
       </button>
     </p>
   </div>`;
