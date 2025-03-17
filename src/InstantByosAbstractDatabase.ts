@@ -411,11 +411,12 @@ export default abstract class InstantByosAbstractDatabase<
    *  console.log(resp.data.goals)
    */
   queryOnce = <Q extends InstaQLParams<Schema>>(
-    query: Q
+    query: Q,
+    opts?: InstaQLOptions
   ): Promise<{
     data: InstaQLResponse<Schema, Q>;
     pageInfo: PageInfoResponse<Q>;
   }> => {
-    return this._core.queryOnce(query);
+    return this._core.queryOnce(query, opts);
   };
 }
