@@ -8,7 +8,7 @@ const query = new URLSearchParams(location.hash.split("?")[1]);
 const roomId = signal((query.get("id") as string | undefined) || allRooms[0]);
 
 const room = db.room("chat", roomId);
-const { error, isLoading, peers } = room.usePresence();
+const { error, isLoading, peers } = db.rooms.usePresence(room);
 
 const route = signal<ReturnType<typeof useRoute>["value"] | null>(null);
 

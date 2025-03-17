@@ -1,11 +1,11 @@
 import { html } from "uhtml/signal";
 import { hideInstantDevTools } from "@/utils";
-import { chatRoom } from "@/db";
+import { chatRoom, db } from "@/db";
 
 let hidden = false;
 
-const { user } = chatRoom.usePresence();
-const publishTopic = chatRoom.usePublishTopic("emoji");
+const { user } = db.rooms.usePresence(chatRoom);
+const publishTopic = db.rooms.usePublishTopic(chatRoom, "emoji");
 
 export default function () {
   if (!hidden) {

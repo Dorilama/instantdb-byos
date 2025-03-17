@@ -14,12 +14,10 @@ import type {
   ConnectionStatus,
   TransactionChunk,
   PresenceOpts,
-  PresenceResponse,
   RoomSchemaShape,
   InstaQLParams,
   InstantConfig,
   PageInfoResponse,
-  InstaQLLifecycleState,
   InstaQLResponse,
   RoomsOf,
   InstantSchemaDef,
@@ -29,14 +27,16 @@ import { useQueryInternal } from "./useQuery";
 import type { UseQueryInternalReturn } from "./useQuery";
 import type {
   Signal,
-  Computed,
   MaybeSignal,
   SignalFunctions,
   OnScopeDisposeFn,
   Arrayable,
-  Rest,
 } from "./types";
-import { InstantByosRoom, rooms } from "./InstantByosRoom";
+import {
+  InstantByosRoom,
+  rooms,
+  type TypingIndicatorOpts,
+} from "./InstantByosRoom";
 
 type UseAuthReturn = { [K in keyof AuthState]: Signal<AuthState[K]> };
 
@@ -130,8 +130,21 @@ export default abstract class InstantByosAbstractDatabase<
      *    console.log(peer.name, 'sent', message);
      *  });
      */
-    useTopicEffect: (...args: Rest<Parameters<typeof rooms.useTopicEffect>>) =>
-      rooms.useTopicEffect(this._fn, ...args),
+    useTopicEffect: <
+      RoomSchema extends RoomSchemaShape,
+      RoomType extends keyof RoomSchema,
+      TopicType extends keyof RoomSchema[RoomType]["topics"]
+    >(
+      room: MaybeSignal<InstantByosRoom<any, RoomSchema, RoomType>>,
+      topic: MaybeSignal<Arrayable<TopicType>>,
+      onEvent: Arrayable<
+        (
+          event: RoomSchema[RoomType]["topics"][TopicType],
+          peer: RoomSchema[RoomType]["presence"],
+          topic: TopicType
+        ) => any
+      >
+    ) => rooms.useTopicEffect(this._fn, room, topic, onEvent),
     /**
      * Broadcast an event to a room.
      *
@@ -147,9 +160,18 @@ export default abstract class InstantByosAbstractDatabase<
      *    );
      *  }
      */
-    usePublishTopic: (
-      ...args: Rest<Parameters<typeof rooms.usePublishTopic>>
-    ) => rooms.usePublishTopic(this._fn, ...args),
+    usePublishTopic: <
+      RoomSchema extends RoomSchemaShape,
+      RoomType extends keyof RoomSchema,
+      TopicType extends keyof RoomSchema[RoomType]["topics"]
+    >(
+      room: MaybeSignal<InstantByosRoom<any, RoomSchema, RoomType>>,
+      topic: MaybeSignal<TopicType>,
+      onScopeDispose?: OnScopeDisposeFn
+    ) => rooms.usePublishTopic(this._fn, room, topic, onScopeDispose),
+    // usePublishTopic: (
+    //   ...args: Rest<Parameters<typeof rooms.usePublishTopic>>
+    // ) => rooms.usePublishTopic(this._fn, ...args),
     /**
      * Listen for peer's presence data in a room, and publish the current user's presence.
      *
@@ -162,8 +184,14 @@ export default abstract class InstantByosAbstractDatabase<
      *    publishPresence
      *  } = db.rooms.usePresence(room, { keys: ["name", "avatar"] });
      */
-    usePresence: (...args: Rest<Parameters<typeof rooms.usePresence>>) =>
-      rooms.usePresence(this._fn, ...args),
+    usePresence: <
+      RoomSchema extends RoomSchemaShape,
+      RoomType extends keyof RoomSchema,
+      Keys extends keyof RoomSchema[RoomType]["presence"]
+    >(
+      room: MaybeSignal<InstantByosRoom<any, RoomSchema, RoomType>>,
+      opts?: MaybeSignal<PresenceOpts<RoomSchema[RoomType]["presence"], Keys>>
+    ) => rooms.usePresence(this._fn, room, opts),
     /**
      * Publishes presence data to a room
      *
@@ -173,9 +201,14 @@ export default abstract class InstantByosAbstractDatabase<
      *  const room = db.room('chats', roomId);
      *  db.rooms.useSyncPresence(room, { name, avatar, color });
      */
-    useSyncPresence: (
-      ...args: Rest<Parameters<typeof rooms.useSyncPresence>>
-    ) => rooms.useSyncPresence(this._fn, ...args),
+    useSyncPresence: <
+      RoomSchema extends RoomSchemaShape,
+      RoomType extends keyof RoomSchema
+    >(
+      room: MaybeSignal<InstantByosRoom<any, RoomSchema, RoomType>>,
+      data: MaybeSignal<Partial<RoomSchema[RoomType]["presence"] | undefined>>,
+      deps?: MaybeSignal<any[]>
+    ) => rooms.useSyncPresence(this._fn, room, data, deps),
     /**
      * Manage typing indicator state
      *
@@ -195,9 +228,14 @@ export default abstract class InstantByosAbstractDatabase<
      *    );
      *  }
      */
-    useTypingIndicator: (
-      ...args: Rest<Parameters<typeof rooms.useTypingIndicator>>
-    ) => rooms.useTypingIndicator(this._fn, ...args),
+    useTypingIndicator: <
+      RoomSchema extends RoomSchemaShape,
+      RoomType extends keyof RoomSchema
+    >(
+      room: MaybeSignal<InstantByosRoom<any, RoomSchema, RoomType>>,
+      inputName: MaybeSignal<string>,
+      opts?: MaybeSignal<TypingIndicatorOpts>
+    ) => rooms.useTypingIndicator(this._fn, room, inputName, opts),
   };
 
   /**

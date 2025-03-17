@@ -29,3 +29,4 @@ const todosQuery = { todos: {} } satisfies InstaQLParams<typeof schema>;
 type TodosResult = InstaQLResult<typeof schema, typeof todosQuery>;
 
 export type Todo = TodosResult["todos"][number];
+db.rooms.usePublishTopic(chatRoom);
