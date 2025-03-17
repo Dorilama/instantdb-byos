@@ -11,6 +11,7 @@ import {
 } from "@instantdb/core";
 import type {
   AuthState,
+  User,
   ConnectionStatus,
   TransactionChunk,
   PresenceOpts,
@@ -349,7 +350,7 @@ export default abstract class InstantByosAbstractDatabase<
    *   const user = await db.getAuth();
    *   console.log('logged in as', user.email)
    */
-  getAuth = (): ReturnType<typeof this._core.getAuth> => {
+  getAuth = (): Promise<User | null> => {
     return this._core.getAuth();
   };
 
