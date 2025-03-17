@@ -35,7 +35,7 @@ import type {
   OnScopeDisposeFn,
   Arrayable,
 } from "./types";
-import { InstantByosRoom } from "./InstantByosRoom";
+import { InstantByosRoom, rooms } from "./InstantByosRoom";
 
 type UseAuthReturn = { [K in keyof AuthState]: Signal<AuthState[K]> };
 
@@ -85,12 +85,8 @@ export default abstract class InstantByosAbstractDatabase<
    * @see https://instantdb.com/docs/presence-and-topics
    *
    * @example
-   *  const {
-   *   useTopicEffect,
-   *   usePublishTopic,
-   *   useSyncPresence,
-   *   useTypingIndicator,
-   * } = db.room(roomType, roomId);
+   *  const room = db.room('chat', roomId);
+   *  const { peers } = db.rooms.usePresence(room);
    */
   room<RoomType extends keyof Rooms>(
     type?: MaybeSignal<RoomType | undefined>,
@@ -110,6 +106,18 @@ export default abstract class InstantByosAbstractDatabase<
       this._fn
     );
   }
+
+  /**
+   * Hooks for working with rooms
+   *
+   * @see https://instantdb.com/docs/presence-and-topics
+   *
+   * @example
+   *  const room = db.room('chat', roomId);
+   *  const { peers } = db.rooms.usePresence(room);
+   *  const publish = db.rooms.usePublishTopic(room, 'emoji');
+   */
+  rooms = rooms;
 
   /**
    * Use this to write data! You can create, update, delete, and link objects
