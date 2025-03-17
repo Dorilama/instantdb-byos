@@ -18,7 +18,6 @@ import type {
   RoomSchemaShape,
   InstaQLParams,
   InstaQLOptions,
-  InstantConfig,
   PageInfoResponse,
   InstaQLResponse,
   RoomsOf,
@@ -39,6 +38,7 @@ import {
   rooms,
   type TypingIndicatorOpts,
 } from "./InstantByosRoom";
+import type { InstantConfig, Extra } from "./init";
 
 type UseAuthReturn = { [K in keyof AuthState]: Signal<AuthState[K]> };
 
@@ -57,13 +57,17 @@ export default abstract class InstantByosAbstractDatabase<
   static Storage?: any;
   static NetworkListener?: any;
 
+  static extra: Extra;
+
   constructor(
     config: InstantConfig<Schema>,
     signalFunctions: SignalFunctions,
     versions?: { [key: string]: string }
   ) {
+    const { __extra_byos, ..._config } = config;
+
     this._core = core_init<Schema>(
-      config,
+      _config,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.Storage,
       // @ts-expect-error because TS can't resolve subclass statics
@@ -73,6 +77,11 @@ export default abstract class InstantByosAbstractDatabase<
     this.auth = this._core.auth;
     this.storage = this._core.storage;
     this._fn = signalFunctions;
+    // @ts-expect-error because TS can't resolve subclass statics
+    this.constructor.extra = {
+      clientOnlyUseQuery: !!__extra_byos?.clientOnlyUseQuery,
+      stopLoadingOnNullQuery: !!__extra_byos?.stopLoadingOnNullQuery,
+    } satisfies Extra;
   }
 
   getLocalId = (name: string) => {

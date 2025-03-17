@@ -3,13 +3,25 @@
 // see instantdb-license.md for license
 
 import type {
-  InstantConfig,
+  InstantConfig as OriginalInstantConfig,
   InstantSchemaDef,
   InstantUnknownSchema,
 } from "@instantdb/core";
 import InstantByosWebDatabase from "./InstantByosWebDatabase";
 import type { SignalFunctions } from "./types";
 import version from "./version";
+
+export interface Extra {
+  clientOnlyUseQuery: boolean;
+  stopLoadingOnNullQuery: boolean;
+}
+
+type ExtraConfig = {
+  __extra_byos?: Partial<Extra>;
+};
+
+export type InstantConfig<S extends InstantSchemaDef<any, any, any>> =
+  OriginalInstantConfig<S> & ExtraConfig;
 
 /**
  *

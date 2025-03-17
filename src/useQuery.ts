@@ -18,6 +18,7 @@ import type {
   EffectFn,
   OnScopeDisposeFn,
 } from "./types";
+import type { Extra } from "./init";
 
 export type UseQueryInternalReturn<Schema, Q> = {
   [K in keyof InstaQLLifecycleState<Schema, Q>]: Signal<
@@ -54,7 +55,8 @@ export function useQueryInternal<
     toValue: typeof ToValueFn;
     effect: EffectFn;
     onScopeDispose?: OnScopeDisposeFn;
-  }
+  },
+  extra?: Extra
 ): {
   state: UseQueryInternalReturn<Schema, Q>;
   query: any;
@@ -83,22 +85,26 @@ export function useQueryInternal<
     stop: () => {},
   };
 
-  const stop = effect(() => {
-    queryHash.value;
-    if (!query.peek()) {
-      state.isLoading.value = false;
-      return;
-    }
-    const unsubscribe = _core.subscribeQuery<Q>(query.peek(), (result) => {
-      state.isLoading.value = !Boolean(result);
-      state.data.value = result.data;
-      state.pageInfo.value = result.pageInfo;
-      state.error.value = result.error;
+  if (!extra?.clientOnlyUseQuery || _core._reactor.querySubs) {
+    const stop = effect(() => {
+      queryHash.value;
+      if (!query.peek()) {
+        if (extra?.stopLoadingOnNullQuery) {
+          state.isLoading.value = false;
+        }
+        return;
+      }
+      const unsubscribe = _core.subscribeQuery<Q>(query.peek(), (result) => {
+        state.isLoading.value = !Boolean(result);
+        state.data.value = result.data;
+        state.pageInfo.value = result.pageInfo;
+        state.error.value = result.error;
+      });
+      return unsubscribe;
     });
-    return unsubscribe;
-  });
 
-  state.stop = stop;
+    state.stop = stop;
+  }
 
   onScopeDispose?.(() => {
     stop();
