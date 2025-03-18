@@ -45,7 +45,11 @@ import type {
 
 import InstantByosAbstractDatabase from "./InstantByosAbstractDatabase";
 import InstantByosWebDatabase from "./InstantByosWebDatabase";
-import { init, init_experimental } from "./init";
+import {
+  init,
+  init_experimental,
+  type InstantConfig as InstantByosConfig,
+} from "./init";
 
 import { useCursors } from "./cursors";
 
@@ -120,4 +124,6 @@ export type {
   EffectFn,
   OnScopeDisposeFn,
   SignalFunctions,
+  //
+  InstantByosConfig,
 };
