@@ -51,13 +51,23 @@ export const defaultActivityStopTimeout = 1_000;
 // ------
 // #region Topics
 
+/**
+ * Listen for broadcasted events given a room and topic.
+ *
+ * @see https://instantdb.com/docs/presence-and-topics
+ * @example
+ *  const roomId = signal("");
+ *  const room = db.room('chats', roomId);
+ *  db.rooms.useTopicEffect(room, 'emoji', (message, peer) => {
+ *    console.log(peer.name, 'sent', message);
+ *  });
+ */
 function useTopicEffect<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema,
   TopicType extends keyof RoomSchema[RoomType]["topics"]
 >(
-  _fn: SignalFunctions,
-  room: MaybeSignal<InstantByosRoom<any, RoomSchema, RoomType>>,
+  room: InstantByosRoom<any, RoomSchema, RoomType>,
   topic: MaybeSignal<Arrayable<TopicType>>,
   onEvent: Arrayable<
     (
@@ -72,15 +82,14 @@ function useTopicEffect<
     cleanup.forEach((fn) => fn());
     cleanup.length = 0;
   }
-  const stop = _fn.effect(() => {
-    const _topic = _fn.toValue(topic);
-    const _room = _fn.toValue(room);
-    const id = _room.id.value;
+  const stop = room._fn.effect(() => {
+    const _topic = room._fn.toValue(topic);
+    const id = room.id.value;
     const topicArray = Array.isArray(_topic) ? _topic : [_topic];
     const callbacks = Array.isArray(onEvent) ? onEvent : [onEvent];
     cleanup.push(
       ...topicArray.map((topicType) => {
-        return _room._core._reactor.subscribeTopic(
+        return room._core._reactor.subscribeTopic(
           id,
           topicType,
           (
@@ -97,39 +106,51 @@ function useTopicEffect<
     return unsubscribe;
   });
 
-  _fn.onScopeDispose?.(() => {
+  room._fn.onScopeDispose?.(() => {
     stop();
   });
 
   return stop;
 }
 
+/**
+ * Broadcast an event to a room.
+ *
+ * @see https://instantdb.com/docs/presence-and-topics
+ * @example
+ *  const roomId = signal("");
+ *  const room = db.room('chats', roomId);
+ *  const publishTopic = db.rooms.usePublishTopic(room, "emoji");
+ *
+ *  function App() {
+ *    return (
+ *      <button onClick={() => publishTopic({ emoji: "🔥" })}>Send emoj</button>
+ *    );
+ *  }
+ */
 function usePublishTopic<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema,
   TopicType extends keyof RoomSchema[RoomType]["topics"]
 >(
-  _fn: SignalFunctions,
-  room: MaybeSignal<InstantByosRoom<any, RoomSchema, RoomType>>,
+  room: InstantByosRoom<any, RoomSchema, RoomType>,
   topic: MaybeSignal<TopicType>,
   onScopeDispose?: OnScopeDisposeFn
 ): (data: RoomSchema[RoomType]["topics"][TopicType]) => void {
-  const stopRoomWatch = _fn.effect(() => {
-    const _room = _fn.toValue(room);
-    const id = _room.id.value;
-    const cleanup = _room._core._reactor.joinRoom(id);
+  const stopRoomWatch = room._fn.effect(() => {
+    const id = room.id.value;
+    const cleanup = room._core._reactor.joinRoom(id);
     return cleanup;
   });
 
   let publishTopic = (data: RoomSchema[RoomType]["topics"][TopicType]) => {};
 
-  const stopTopicWatch = _fn.effect(() => {
-    const _room = _fn.toValue(room);
-    const id = _room.id.value;
-    const type = _room.type.value;
-    const _topic = _fn.toValue(topic);
+  const stopTopicWatch = room._fn.effect(() => {
+    const id = room.id.value;
+    const type = room.type.value;
+    const _topic = room._fn.toValue(topic);
     publishTopic = (data: RoomSchema[RoomType]["topics"][TopicType]) => {
-      _room._core._reactor.publishTopic({
+      room._core._reactor.publishTopic({
         roomType: type,
         roomId: id,
         topic: _topic,
@@ -147,7 +168,7 @@ function usePublishTopic<
     onScopeDispose(cleanup);
   }
 
-  _fn.onScopeDispose?.(cleanup);
+  room._fn.onScopeDispose?.(cleanup);
 
   return publishTopic;
 }
@@ -157,24 +178,34 @@ function usePublishTopic<
 // ---------
 // #region Presence
 
+/**
+ * Listen for peer's presence data in a room, and publish the current user's presence.
+ *
+ * @see https://instantdb.com/docs/presence-and-topics
+ * @example
+ *  const roomId = signal("");
+ *  const room = db.room('chats', roomId);
+ *  const {
+ *    peers,
+ *    publishPresence
+ *  } = db.rooms.usePresence(room, { keys: ["name", "avatar"] });
+ */
 function usePresence<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema,
   Keys extends keyof RoomSchema[RoomType]["presence"]
 >(
-  _fn: SignalFunctions,
-  room: MaybeSignal<InstantByosRoom<any, RoomSchema, RoomType>>,
+  room: InstantByosRoom<any, RoomSchema, RoomType>,
   opts: MaybeSignal<PresenceOpts<RoomSchema[RoomType]["presence"], Keys>> = {}
 ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> {
   const getInitialState = (): PresenceResponse<
     RoomSchema[RoomType]["presence"],
     Keys
   > => {
-    const _room = _fn.toValue(room);
-    const presence = _room._core._reactor.getPresence(
-      _room.type.value,
-      _room.id.value,
-      _fn.toValue(opts)
+    const presence = room._core._reactor.getPresence(
+      room.type.value,
+      room.id.value,
+      room._fn.toValue(opts)
     ) ?? {
       peers: {},
       isLoading: true,
@@ -189,17 +220,16 @@ function usePresence<
   };
 
   const state = {
-    peers: _fn.signal({}),
-    isLoading: _fn.signal(false),
-    user: _fn.signal(undefined),
-    error: _fn.signal(undefined),
+    peers: room._fn.signal({}),
+    isLoading: room._fn.signal(false),
+    user: room._fn.signal(undefined),
+    error: room._fn.signal(undefined),
   };
 
-  const stop = _fn.effect(() => {
-    const _room = _fn.toValue(room);
-    const id = _room.id.value;
-    const type = _room.type.value;
-    const _opts = _fn.toValue(opts);
+  const stop = room._fn.effect(() => {
+    const id = room.id.value;
+    const type = room.type.value;
+    const _opts = room._fn.toValue(opts);
 
     Object.entries(getInitialState()).forEach(([key, value]) => {
       state[
@@ -210,7 +240,7 @@ function usePresence<
     // @instantdb/core v0.14.30 removes types for subscribePresence
     // trying to restore types until fixed in core
     // by adding type to parameter in callback
-    const unsubscribe = _room._core._reactor.subscribePresence(
+    const unsubscribe = room._core._reactor.subscribePresence(
       type,
       id,
       _opts,
@@ -228,48 +258,49 @@ function usePresence<
     return unsubscribe;
   });
 
-  _fn.onScopeDispose?.(() => {
+  room._fn.onScopeDispose?.(() => {
     stop();
   });
 
   return {
     ...state,
     publishPresence: (data) => {
-      const _room = _fn.toValue(room);
-      _room._core._reactor.publishPresence(
-        _room.type.value,
-        _room.id.value,
-        data
-      );
+      room._core._reactor.publishPresence(room.type.value, room.id.value, data);
     },
     stop,
   };
 }
 
+/**
+ * Publishes presence data to a room
+ *
+ * @see https://instantdb.com/docs/presence-and-topics
+ * @example
+ *  const roomId = signal("");
+ *  const room = db.room('chats', roomId);
+ *  db.rooms.useSyncPresence(room, { name, avatar, color });
+ */
 function useSyncPresence<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 >(
-  _fn: SignalFunctions,
-  room: MaybeSignal<InstantByosRoom<any, RoomSchema, RoomType>>,
+  room: InstantByosRoom<any, RoomSchema, RoomType>,
   data: MaybeSignal<Partial<RoomSchema[RoomType]["presence"] | undefined>>,
   deps?: MaybeSignal<any[]>
 ): () => void {
-  const stopRoomWatch = _fn.effect(() => {
-    const _room = _fn.toValue(room);
-    const id = _room.id.value;
-    const cleanup = _room._core._reactor.joinRoom(id);
+  const stopRoomWatch = room._fn.effect(() => {
+    const id = room.id.value;
+    const cleanup = room._core._reactor.joinRoom(id);
     return cleanup;
   });
 
-  const stopEffect = _fn.effect(() => {
-    const _room = _fn.toValue(room);
-    const id = _room.id.value;
-    const type = _room.type.value;
-    const _data = _fn.toValue(data);
-    _room._core._reactor.joinRoom(id);
-    _room._core._reactor.publishPresence(type, id, _data);
-    _fn.toValue(deps);
+  const stopEffect = room._fn.effect(() => {
+    const id = room.id.value;
+    const type = room.type.value;
+    const _data = room._fn.toValue(data);
+    room._core._reactor.joinRoom(id);
+    room._core._reactor.publishPresence(type, id, _data);
+    room._fn.toValue(deps);
   });
 
   function stop() {
@@ -277,7 +308,7 @@ function useSyncPresence<
     stopEffect();
   }
 
-  _fn.onScopeDispose?.(() => {
+  room._fn.onScopeDispose?.(() => {
     stop();
   });
 
@@ -289,33 +320,53 @@ function useSyncPresence<
 // -----------------
 // #region Typing Indicator
 
+/**
+ * Manage typing indicator state
+ *
+ * @see https://instantdb.com/docs/presence-and-topics
+ * @example
+ *  const roomId = signal("");
+ *  const room = db.room('chats', roomId);
+ *  const {
+ *    active,
+ *    setActive,
+ *    inputProps,
+ *  } = db.rooms.useTypingIndicator(room, "chat-input");
+ *
+ *  function App() {
+ *    return (
+ *      <input onBlur="inputProps.onBlur" onKeydown="inputProps.onKeyDown"/>
+ *    );
+ *  }
+ */
 function useTypingIndicator<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 >(
-  _fn: SignalFunctions,
-  room: MaybeSignal<InstantByosRoom<any, RoomSchema, RoomType>>,
+  room: InstantByosRoom<any, RoomSchema, RoomType>,
   inputName: MaybeSignal<string>,
   opts: MaybeSignal<TypingIndicatorOpts> = {}
 ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> {
-  const timeout = useTimeout({ onScopeDispose: _fn.onScopeDispose });
+  const timeout = useTimeout({ onScopeDispose: room._fn.onScopeDispose });
 
-  const _inputName = _fn.toValue(inputName);
+  const _inputName = room._fn.toValue(inputName);
 
-  //@ts-ignore TODO! same error in InstantReact
-  const onservedPresence = room.usePresence(() => ({
-    keys: [_fn.toValue(inputName)],
-  }));
+  const onservedPresence = rooms.usePresence(
+    room,
+    //@ts-ignore TODO! same error in InstantReact
+    () => ({
+      keys: [room._fn.toValue(inputName)],
+    })
+  );
 
-  const active = _fn.computed(() => {
-    const _room = _fn.toValue(room);
-    const presenceSnapshot = _room._core._reactor.getPresence(
-      _room.type.value,
-      _room.id.value
+  const active = room._fn.computed(() => {
+    const presenceSnapshot = room._core._reactor.getPresence(
+      room.type.value,
+      room.id.value
     );
     onservedPresence.peers.value;
 
-    return _fn.toValue(opts)?.writeOnly
+    return room._fn.toValue(opts)?.writeOnly
       ? []
       : Object.values(presenceSnapshot?.peers ?? {}).filter(
           //@ts-ignore TODO! same error in InstantReact
@@ -324,12 +375,11 @@ function useTypingIndicator<
   });
 
   const setActive = (isActive: boolean) => {
-    const _room = _fn.toValue(room);
-    const _opts = _fn.toValue(opts);
-    const _inputName = _fn.toValue(inputName);
-    const id = _room.id.value;
-    const type = _room.type.value;
-    _room._core._reactor.publishPresence(type, id, {
+    const _opts = room._fn.toValue(opts);
+    const _inputName = room._fn.toValue(inputName);
+    const id = room.id.value;
+    const type = room.type.value;
+    room._core._reactor.publishPresence(type, id, {
       [_inputName]: isActive,
     } as unknown as Partial<RoomSchema[RoomType]>);
 
@@ -338,14 +388,14 @@ function useTypingIndicator<
     if (_opts?.timeout === null || _opts?.timeout === 0) return;
 
     timeout.set(_opts?.timeout ?? defaultActivityStopTimeout, () => {
-      _room._core._reactor.publishPresence(type, id, {
+      room._core._reactor.publishPresence(type, id, {
         [_inputName]: null,
       } as Partial<RoomSchema[RoomType]>);
     });
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
-    const _opts = _fn.toValue(opts);
+    const _opts = room._fn.toValue(opts);
     const isEnter = _opts?.stopOnEnter && e.key === "Enter";
     const isActive = !isEnter;
 
@@ -356,7 +406,7 @@ function useTypingIndicator<
     timeout.clear();
   }
 
-  _fn.onScopeDispose?.(() => {
+  room._fn.onScopeDispose?.(() => {
     stop();
   });
 
@@ -437,7 +487,7 @@ export class InstantByosRoom<
       ) => any
     >
   ): (() => void) => {
-    return rooms.useTopicEffect(this._fn, this, topic, onEvent);
+    return rooms.useTopicEffect(this, topic, onEvent);
   };
 
   /**
@@ -458,7 +508,7 @@ export class InstantByosRoom<
     topic: MaybeSignal<Topic>,
     onScopeDispose?: OnScopeDisposeFn
   ): ((data: RoomSchema[RoomType]["topics"][Topic]) => void) => {
-    return rooms.usePublishTopic(this._fn, this, topic);
+    return rooms.usePublishTopic(this, topic);
   };
 
   /**
@@ -478,7 +528,7 @@ export class InstantByosRoom<
   usePresence = <Keys extends keyof RoomSchema[RoomType]["presence"]>(
     opts: MaybeSignal<PresenceOpts<RoomSchema[RoomType]["presence"], Keys>> = {}
   ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> => {
-    return rooms.usePresence(this._fn, this, opts);
+    return rooms.usePresence(this, opts);
   };
 
   /**
@@ -499,7 +549,7 @@ export class InstantByosRoom<
     data: MaybeSignal<Partial<RoomSchema[RoomType]["presence"] | undefined>>,
     deps?: MaybeSignal<any[]>
   ): (() => void) => {
-    return rooms.useSyncPresence(this._fn, this, data, deps);
+    return rooms.useSyncPresence(this, data, deps);
   };
 
   /**
@@ -520,7 +570,7 @@ export class InstantByosRoom<
     inputName: MaybeSignal<string>,
     opts: MaybeSignal<TypingIndicatorOpts> = {}
   ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> => {
-    return rooms.useTypingIndicator(this._fn, this, inputName, opts);
+    return rooms.useTypingIndicator(this, inputName, opts);
   };
 }
 
