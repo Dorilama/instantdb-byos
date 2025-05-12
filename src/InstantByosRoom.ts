@@ -288,24 +288,24 @@ function useSyncPresence<
   data: MaybeSignal<Partial<RoomSchema[RoomType]["presence"] | undefined>>,
   deps?: MaybeSignal<any[]>
 ): () => void {
-  const stopRoomWatch = room._fn.effect(() => {
+  const stopJoinRoom = room._fn.effect(() => {
     const id = room.id.value;
-    const cleanup = room._core._reactor.joinRoom(id);
+    const _data = room._fn.toValue(data);
+    const cleanup = room._core._reactor.joinRoom(id, _data);
     return cleanup;
   });
 
-  const stopEffect = room._fn.effect(() => {
+  const stopPublishPresence = room._fn.effect(() => {
     const id = room.id.value;
     const type = room.type.value;
     const _data = room._fn.toValue(data);
-    room._core._reactor.joinRoom(id);
-    room._core._reactor.publishPresence(type, id, _data);
     room._fn.toValue(deps);
+    room._core._reactor.publishPresence(type, id, _data);
   });
 
   function stop() {
-    stopRoomWatch();
-    stopEffect();
+    stopJoinRoom();
+    stopPublishPresence();
   }
 
   room._fn.onScopeDispose?.(() => {
