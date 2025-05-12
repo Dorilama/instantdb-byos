@@ -108,6 +108,10 @@ const userOnceText = computed(() => {
 
 const connectionStatus = db.useConnectionStatus();
 
+const idCount = signal(0);
+const idName = computed(() => `local${idCount.value}`);
+const localId = db.useLocalId(idName);
+
 export default function () {
   const todos = data.value?.todos || [];
   return html`<div class="flex flex-col items-center pt-4 pb-8 px-2 gap-4">
@@ -170,6 +174,16 @@ export default function () {
         ?disabled=${userOnce.isLoading.value}
       >
         ${userOnceText.value}
+      </button>
+      <button
+        class=${["btn btn-outline mt-4", !localId.value && "skeleton"]
+          .filter(Boolean)
+          .join(" ")}
+        @click=${() => {
+          idCount.value++;
+        }}
+      >
+        LocalId ${idCount.value}: ${localId.value || "loading"}
       </button>
     </p>
   </div>`;

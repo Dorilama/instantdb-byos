@@ -84,8 +84,46 @@ export default abstract class InstantByosAbstractDatabase<
     } satisfies Extra;
   }
 
+  /**
+   * Returns a unique ID for a given `name`. It's stored in local storage,
+   * so you will get the same ID across sessions.
+   *
+   * This is useful for generating IDs that could identify a local device or user.
+   *
+   * @example
+   *  const deviceId = await db.getLocalId('device');
+   */
   getLocalId = (name: string) => {
     return this._core.getLocalId(name);
+  };
+
+  /**
+   * A hook that returns a unique ID for a given `name`. localIds are
+   * stored in local storage, so you will get the same ID across sessions.
+   *
+   * Initially returns `null`, and then loads the localId.
+   *
+   * @example
+   * const deviceId = db.useLocalId('device');
+   * effect(()=>{
+   *   if(deviceId.value){
+   *     console.log('Device ID:', value)
+   *   }
+   * })
+   */
+  useLocalId = (name: MaybeSignal<string>): Signal<string | null> => {
+    const localId = this._fn.signal<string | null>(null);
+
+    this._fn.effect(() => {
+      const _name = this._fn.toValue(name);
+      this.getLocalId(_name).then((id) => {
+        if (this._fn.toValue(name) === _name) {
+          localId.value = id;
+        }
+      });
+    });
+
+    return localId;
   };
 
   /**
