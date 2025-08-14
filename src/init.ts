@@ -20,8 +20,10 @@ type ExtraConfig = {
   __extra_byos?: Partial<Extra>;
 };
 
-export type InstantConfig<S extends InstantSchemaDef<any, any, any>> =
-  OriginalInstantConfig<S> & ExtraConfig;
+export type InstantConfig<
+  S extends InstantSchemaDef<any, any, any>,
+  UseDates extends boolean = false
+> = OriginalInstantConfig<S, UseDates> & ExtraConfig;
 
 /**
  *
@@ -50,11 +52,16 @@ export type InstantConfig<S extends InstantSchemaDef<any, any, any>> =
  *
  */
 export function init<
-  Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
->(config: InstantConfig<Schema>, signalFunctions: SignalFunctions) {
-  return new InstantByosWebDatabase<Schema>(config, signalFunctions, {
-    "@dorilama/instantdb-byos": version,
-  });
+  Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema,
+  UseDates extends boolean = false
+>(config: InstantConfig<Schema, UseDates>, signalFunctions: SignalFunctions) {
+  return new InstantByosWebDatabase<Schema, InstantConfig<Schema, UseDates>>(
+    config,
+    signalFunctions,
+    {
+      "@dorilama/instantdb-byos": version,
+    }
+  );
 }
 
 /**

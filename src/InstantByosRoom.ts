@@ -445,13 +445,13 @@ export class InstantByosRoom<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 > {
-  _core: InstantCoreDatabase<Schema>;
+  _core: InstantCoreDatabase<Schema, boolean>;
   type: Computed<RoomType>;
   id: Computed<string>;
   _fn: SignalFunctions;
 
   constructor(
-    _core: InstantCoreDatabase<Schema>,
+    _core: InstantCoreDatabase<Schema, boolean>,
     type: Computed<RoomType>,
     id: Computed<string>,
     signalFunctions: SignalFunctions

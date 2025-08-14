@@ -20,9 +20,9 @@ import type {
 } from "./types";
 import type { Extra } from "./init";
 
-export type UseQueryInternalReturn<Schema, Q> = {
-  [K in keyof InstaQLLifecycleState<Schema, Q>]: Signal<
-    InstaQLLifecycleState<Schema, Q>[K]
+export type UseQueryInternalReturn<Schema, Q, UseDates extends boolean> = {
+  [K in keyof InstaQLLifecycleState<Schema, Q, UseDates>]: Signal<
+    InstaQLLifecycleState<Schema, Q, UseDates>[K]
   >;
 } & { stop: () => void };
 
@@ -38,9 +38,10 @@ function stateForResult(result: any) {
 
 export function useQueryInternal<
   Q extends InstaQLParams<Schema>,
-  Schema extends InstantSchemaDef<any, any, any>
+  Schema extends InstantSchemaDef<any, any, any>,
+  UseDates extends boolean
 >(
-  _core: InstantCoreDatabase<Schema>,
+  _core: InstantCoreDatabase<Schema, UseDates>,
   _query: MaybeSignal<null | Q>,
   _opts: MaybeSignal<InstaQLOptions | null> | undefined,
   {
@@ -58,7 +59,7 @@ export function useQueryInternal<
   },
   extra?: Extra
 ): {
-  state: UseQueryInternalReturn<Schema, Q>;
+  state: UseQueryInternalReturn<Schema, Q, UseDates>;
   query: any;
 } {
   const query = computed(() => {
@@ -77,7 +78,7 @@ export function useQueryInternal<
     _core._reactor.getPreviousResult(query.value)
   );
 
-  const state: UseQueryInternalReturn<Schema, Q> = {
+  const state: UseQueryInternalReturn<Schema, Q, UseDates> = {
     isLoading: signal(initialState.isLoading),
     data: signal(initialState.data),
     pageInfo: signal(initialState.pageInfo),
@@ -103,12 +104,15 @@ export function useQueryInternal<
         }
         return;
       }
-      const unsubscribe = _core.subscribeQuery<Q>(query.peek(), (result) => {
-        state.isLoading.value = !Boolean(result);
-        state.data.value = result.data;
-        state.pageInfo.value = result.pageInfo;
-        state.error.value = result.error;
-      });
+      const unsubscribe = _core.subscribeQuery<Q, UseDates>(
+        query.peek(),
+        (result) => {
+          state.isLoading.value = !Boolean(result);
+          state.data.value = result.data;
+          state.pageInfo.value = result.pageInfo;
+          state.error.value = result.error;
+        }
+      );
       return unsubscribe;
     });
 

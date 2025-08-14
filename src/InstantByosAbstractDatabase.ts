@@ -44,6 +44,7 @@ type UseAuthReturn = { [K in keyof AuthState]: Signal<AuthState[K]> };
 
 export default abstract class InstantByosAbstractDatabase<
   Schema extends InstantSchemaDef<any, any, any>,
+  Config extends InstantConfig<Schema, boolean> = InstantConfig<Schema, false>,
   Rooms extends RoomSchemaShape = RoomsOf<Schema>
 > implements IInstantDatabase<Schema>
 {
@@ -51,7 +52,10 @@ export default abstract class InstantByosAbstractDatabase<
 
   public auth: Auth;
   public storage: Storage;
-  public _core: InstantCoreDatabase<Schema>;
+  public _core: InstantCoreDatabase<
+    Schema,
+    NonNullable<Config["useDateObjects"]>
+  >;
   public readonly _fn: SignalFunctions;
 
   static Storage?: any;
@@ -60,13 +64,13 @@ export default abstract class InstantByosAbstractDatabase<
   static extra: Extra;
 
   constructor(
-    config: InstantConfig<Schema>,
+    config: Config,
     signalFunctions: SignalFunctions,
     versions?: { [key: string]: string }
   ) {
     const { __extra_byos, ..._config } = config;
 
-    this._core = core_init<Schema>(
+    this._core = core_init<Schema, NonNullable<Config["useDateObjects"]>>(
       _config,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.Storage,
@@ -225,8 +229,17 @@ export default abstract class InstantByosAbstractDatabase<
   useQuery = <Q extends InstaQLParams<Schema>>(
     query: MaybeSignal<null | Q>,
     opts?: MaybeSignal<InstaQLOptions | null>
-  ): UseQueryInternalReturn<Schema, Q> => {
-    return useQueryInternal(this._core, query, opts, this._fn).state;
+  ): UseQueryInternalReturn<
+    Schema,
+    Q,
+    NonNullable<Config["useDateObjects"]>
+  > => {
+    return useQueryInternal<Q, Schema, NonNullable<Config["useDateObjects"]>>(
+      this._core,
+      query,
+      opts,
+      this._fn
+    ).state;
   };
 
   /**
@@ -349,7 +362,7 @@ export default abstract class InstantByosAbstractDatabase<
     query: Q,
     opts?: InstaQLOptions
   ): Promise<{
-    data: InstaQLResponse<Schema, Q>;
+    data: InstaQLResponse<Schema, Q, NonNullable<Config["useDateObjects"]>>;
     pageInfo: PageInfoResponse<Q>;
   }> => {
     return this._core.queryOnce(query, opts);
