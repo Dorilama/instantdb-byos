@@ -88,6 +88,15 @@ export function useQueryInternal<
   if (!extra?.clientOnlyUseQuery || _core._reactor.querySubs) {
     const stop = effect(() => {
       queryHash.value;
+
+      const currentState = stateForResult(
+        _core._reactor.getPreviousResult(query.peek())
+      );
+      state.isLoading.value = currentState.isLoading;
+      state.data.value = currentState.data;
+      state.pageInfo.value = currentState.pageInfo;
+      state.error.value = currentState.error;
+
       if (!query.peek()) {
         if (extra?.stopLoadingOnNullQuery) {
           state.isLoading.value = false;
