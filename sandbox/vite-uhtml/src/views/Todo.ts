@@ -3,6 +3,8 @@ import { useRoute } from "@/router";
 import { db, type Todo } from "@/db";
 import { TodoForm, TodoList, TodoFooter } from "@/components/Todo";
 import { type User } from "@dorilama/instantdb-byos";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import UserSample from "@/components/UserSample";
 
 const q = { todos: {} };
 const query = signal(q);
@@ -185,6 +187,10 @@ export default function () {
       >
         LocalId ${idCount.value}: ${localId.value || "loading"}
       </button>
+      <div>
+      You should see an error when loggeo out
+      ${ErrorBoundary(UserSample)}
+      </div>
     </p>
   </div>`;
 }

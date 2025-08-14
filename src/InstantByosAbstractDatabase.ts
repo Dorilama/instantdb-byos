@@ -8,6 +8,7 @@ import {
   txInit,
   InstantCoreDatabase,
   init as core_init,
+  InstantError,
 } from "@instantdb/core";
 import type {
   AuthState,
@@ -243,6 +244,48 @@ export default abstract class InstantByosAbstractDatabase<
   };
 
   /**
+   * Subscribe to the currently logged in user.
+   * If the user is not logged in, this hook with throw an Error.
+   * You will want to protect any calls of this hook with a
+   * <db.SignedIn> component, or your own logic based on db.useAuth()
+   *
+   * @see https://instantdb.com/docs/auth
+   * @throws Error indicating user not signed in
+   * @example
+   *  function UserDisplay() {
+   *    const user = db.useUser()
+   *    return <div>Logged in as: {user.email}</div>
+   *  }
+   *
+   *  function App() {
+   *    const { isLoading, user, error } = db.useAuth()
+   *    if (isLoading.value) {
+   *      return <div>Loading...</div>
+   *    }
+   *    if (error.value) {
+   *      return <div>Uh oh! {error.value.message}</div>
+   *    }
+   *    if (user.value) {
+   *      return <UserDisplay />
+   *    }
+   *    return <Login />
+   *  }
+   *
+   */
+  useUser = (setStop?: (stop: () => void) => void): Signal<User> => {
+    const { user, stop } = this.useAuth();
+    setStop?.(stop);
+
+    if (!user.value) {
+      throw new InstantError(
+        "useUser must be used within an auth-protected route"
+      );
+    }
+
+    return user as Signal<User>;
+  };
+
+  /**
    * Listen for the logged in state. This is useful
    * for deciding when to show a login screen.
    *
@@ -367,4 +410,20 @@ export default abstract class InstantByosAbstractDatabase<
   }> => {
     return this._core.queryOnce(query, opts);
   };
+
+  /**
+   * Only render children if the user is signed in.
+   * @see https://instantdb.com/docs/auth
+   *
+   * @todo needs to be implemented specifically for every framework
+   */
+  SignedIn = null;
+
+  /**
+   * Only render children if the user is signed out.
+   * @see https://instantdb.com/docs/auth
+   *
+   * @todo needs to be implemented specifically for every framework
+   */
+  SignedOut = null;
 }
