@@ -87,9 +87,12 @@ export function TodoList({
             </form>
           </td>
 
-          <td class="flex-auto flex items-center">
+          <td class="flex-auto flex flex-col aligh-center">
             <span class=${todo.done ? "line-through" : "no-underline"}
               >${todo.text}</span
+            >
+            <span class="italic text-xs">
+              ${todo.lastModified.toLocaleString("it-IT")}</span
             >
           </td>
           <td>

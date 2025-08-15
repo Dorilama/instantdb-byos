@@ -19,13 +19,13 @@ const toValue: typeof ToValueFn = (v) => {
 const APP_ID = import.meta.env["VITE_INSTANT_APP_ID"];
 
 export const db = init(
-  { appId: APP_ID, schema },
+  { appId: APP_ID, schema, useDateObjects: true },
   { signal, computed, effect, toValue }
 );
 export const chatRoom = db.room("chat", "dev");
 
 const todosQuery = { todos: {} } satisfies InstaQLParams<typeof schema>;
 
-type TodosResult = InstaQLResult<typeof schema, typeof todosQuery>;
+type TodosResult = InstaQLResult<typeof schema, typeof todosQuery, true>;
 
 export type Todo = TodosResult["todos"][number];
