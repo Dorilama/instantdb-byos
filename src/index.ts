@@ -11,6 +11,7 @@ import type {
   InstantObject,
   InstantEntity,
   InstantSchemaDatabase,
+  InstantUnknownSchemaDef,
   IInstantDatabase,
   User,
   AuthState,
@@ -19,6 +20,7 @@ import type {
   InstantConfig,
   InstaQLParams,
   ConnectionStatus,
+  ValidQuery,
   // schema types
   AttrsDefs,
   CardinalityKind,
@@ -42,6 +44,7 @@ import type {
   TopicsOf,
   TopicOf,
   RoomHandle,
+  TransactionChunk,
   InstantUnknownSchema,
   InstantSchemaDef,
   BackwardsCompatibleSchema,
@@ -85,6 +88,7 @@ export {
 };
 export type {
   InstantConfig,
+  InstantUnknownSchemaDef,
   Config,
   Query,
   QueryResponse,
@@ -99,6 +103,7 @@ export type {
   InstantSchemaDatabase,
   IInstantDatabase,
   InstaQLParams,
+  ValidQuery,
   InstaQLFields,
   // schema types
   AttrsDefs,
@@ -117,6 +122,7 @@ export type {
   InstaQLResult,
   InstaQLEntitySubquery,
   RoomsOf,
+  TransactionChunk,
   RoomsDef,
   PresenceOf,
   TopicsOf,

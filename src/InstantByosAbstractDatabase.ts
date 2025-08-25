@@ -17,13 +17,13 @@ import type {
   TransactionChunk,
   PresenceOpts,
   RoomSchemaShape,
-  InstaQLParams,
   InstaQLOptions,
   PageInfoResponse,
   InstaQLResponse,
   RoomsOf,
   InstantSchemaDef,
   IInstantDatabase,
+  ValidQuery,
 } from "@instantdb/core";
 import { useQueryInternal } from "./useQuery";
 import type { UseQueryInternalReturn } from "./useQuery";
@@ -227,7 +227,7 @@ export default abstract class InstantByosAbstractDatabase<
    *    auth.user ? { goals: {} } : null
    *  )
    */
-  useQuery = <Q extends InstaQLParams<Schema>>(
+  useQuery = <Q extends ValidQuery<Q, Schema>>(
     query: MaybeSignal<null | Q>,
     opts?: MaybeSignal<InstaQLOptions | null>
   ): UseQueryInternalReturn<
@@ -401,7 +401,7 @@ export default abstract class InstantByosAbstractDatabase<
    *  const resp = await db.queryOnce({ goals: {} });
    *  console.log(resp.data.goals)
    */
-  queryOnce = <Q extends InstaQLParams<Schema>>(
+  queryOnce = <Q extends ValidQuery<Q, Schema>>(
     query: Q,
     opts?: InstaQLOptions
   ): Promise<{
